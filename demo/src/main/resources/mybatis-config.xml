@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <!--注意这里几个的顺序,否则会报错qwq-->
+
+    <!--起别名,不用区分大小写,不用带包名,给UserMapper.xml提供了方便-->
+    <typeAliases>
+        <package name="org.harvey.batis.demo.entity"/><!--这里与其说是起别名,其实是省略了包名,真想看起一个新名字,去看官网-->
+    </typeAliases>
+
+
+    <!--
+    environments:
+    环境配置
+    配置数据库连接环境信息
+    可以配置多个environment
+    通过default属性切换不同发environment
+    -->
+    <environments default="development">
+
+
+        <!--development 开发环境-->
+        <environment id="development">
+
+            <transactionManager type="JDBC"/>
+
+            <!-- 默认的数据库连接池  DRUID -->
+            <dataSource type="org.harvey.batis.demo.utils.DruidDataSourceFactory">
+                <!-- JDBC文件连接 -->
+                <property name="driverClass" value="com.mysql.cj.jdbc.Driver"/>
+                <!--数据库连接-->
+                <property name="jdbcUrl" value="jdbc:mysql://redis:3306/employee?useSSL=false"/>
+                <!--用户名-->
+                <property name="username" value="root"/>
+                <!--密码-->
+                <property name="password" value="123456"/>
+                <property name="initialSize" value="5"/>
+                <property name="maxActive" value="10"/>
+                <property name="maxWait" value="3000"/>
+                <!--
+                    initialSize = 5;//初始化连接数
+                    maxActive = 10; //最大连接数
+                    maxWait = 3000;//等待3000毫秒
+                -->
+            </dataSource>
+
+        </environment>
+        <!--还有生产库等-->
+    </environments>
+
+
+    <!--对应映射文件-->
+    <mappers>
+        <package name="org/harvey/batis/demo/mapper"/>
+    </mappers>
+
+</configuration>

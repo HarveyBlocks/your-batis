@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.harvey.batis.demo.mapper.EmployeeMapper"><!--名字写代理接口-->
+
+
+    <resultMap id="EmployeeMap" type="Employee">
+        <result column="id" property="id"/>
+        <result column="first_name" property="firstName"/>
+    </resultMap>
+    <!---->
+
+    <!--
+        <insert id="addEmployee" useGeneratedKeys="true" keyProperty="id">
+            insert into employee(customer_id,employee_date)
+            values(#{customerId},#{employeeDate});
+        </insert>
+
+
+        <delete id="delById">
+            delete from employee where
+            id = #{id}
+        </delete>
+
+        <delete id="delByIds">
+            delete from employee where
+            id in
+            <foreach
+                    collection="array"
+                    item="id"
+                    separator=","
+                    open="("
+                    close=")">
+                #{id}
+            </foreach>
+            ;
+            &lt;!&ndash;删除了个寂寞也是删,离谱&ndash;&gt;
+        </delete>
+
+        <update id="update">
+            update employee
+            <set>
+                &lt;!&ndash;↓这里用and而不是&&&ndash;&gt;
+                <if test="customerId!=null and customerId!= '' ">
+                    customer_id = #{customerId},
+                </if>
+                <if test="employeeDate!=null">
+                    employee_date = #{employeeDate}
+                </if>
+            </set>
+            where
+            id=#{id}
+            ;
+            &lt;!&ndash;如果good不写id,id默认为0,会删除id = 0 的 商品 不符合&ndash;&gt;
+        </update>
+
+        <update id="updateByMessage">
+            update employee
+            <set>
+                &lt;!&ndash;↓这里用and而不是&&&ndash;&gt;
+                <if test="customerId!=null and customerId!= '' ">
+                    customer_id = #{customerId},
+                </if>
+                <if test="employeeData!=null and employeeData!=''">
+                    employee_date = #{employeeDate},
+                </if>
+            </set>
+            where
+            id=#{id}
+            ;
+            &lt;!&ndash;如果good不写id,id默认为0,会删除id = 0 的 商品 不符合&ndash;&gt;
+
+        </update>
+
+    -->
+
+    <!--
+
+    SELECT gb.employee_id as employee_id,
+b.customer_id as customer_id,
+b.employee_date as employee_date,
+SUM(gb.count) AS union_count,
+SUM(gb.count * g.price) AS union_price
+FROM good_employee gb
+JOIN employee b ON b.id = gb.employee_id
+JOIN good g ON g.id = gb.good_id
+GROUP BY gb.employee_id;
+    -->
+    <!--id是这一句命令的唯一标识,不能重复-->
+    <select id="selectAll" resultMap="EmployeeMap">
+        <!--起了别名之后就方便了-->
+        SELECT id,
+        name as first_name
+        FROM tb_employee;
+    </select>
+    <!--   <select id="selectAll" resultMap="EmployeeMap">&lt;!&ndash;起了别名之后就方便了&ndash;&gt;
+           SELECT gb.employee_id as employee_id,
+           b.customer_id as customer_id,
+           b.employee_date as employee_date,
+           SUM(gb.count) AS union_count,
+           SUM(gb.count * g.price) AS union_price
+           FROM good_employee gb
+           JOIN employee b ON b.id = gb.employee_id
+           JOIN good g ON g.id = gb.good_id
+           GROUP BY gb.employee_id;
+       </select>
+
+
+       <select id="selectById" parameterType="Integer" resultMap="EmployeeMap">
+           SELECT gb.employee_id as employee_id,
+           b.customer_id as customer_id,
+           b.employee_date as employee_date,
+           SUM(gb.count) AS union_count,
+           SUM(gb.count * g.price) AS union_price
+           FROM good_employee gb
+           JOIN employee b ON b.id = gb.employee_id
+           JOIN good g ON g.id = gb.good_id
+           where employee_id like concat('%',#{id},'%')
+           GROUP BY gb.employee_id;
+       </select>
+
+       <select id="selectByIds" resultMap="EmployeeMap">
+           SELECT gb.employee_id as employee_id,
+           b.customer_id as customer_id,
+           b.employee_date as employee_date,
+           SUM(gb.count) AS union_count,
+           SUM(gb.count * g.price) AS union_price
+           FROM good_employee gb
+           JOIN employee b ON b.id = gb.employee_id
+           JOIN good g ON g.id = gb.good_id
+           where
+           <foreach
+                   collection="array"
+                   item="id"
+                   separator=" or ">
+               employee_id like concat('%',#{id},'%')
+           </foreach>
+           GROUP BY gb.employee_id;
+       </select>
+
+
+       <select id="selectByCustomerId" resultMap="EmployeeMap">
+           SELECT gb.employee_id as employee_id,
+           b.customer_id as customer_id,
+           b.employee_date as employee_date,
+           SUM(gb.count) AS union_count,
+           SUM(gb.count * g.price) AS union_price
+           FROM good_employee gb
+           JOIN employee b ON b.id = gb.employee_id
+           JOIN good g ON g.id = gb.good_id
+           where (select b.customer_id
+           from employee b
+           where b.id = gb.employee_id
+           ) like concat('%',#{customerId},'%')
+           GROUP BY gb.employee_id;
+       </select>
+
+       <select id="selectByCustomerIds" resultMap="EmployeeMap">
+           SELECT gb.employee_id as employee_id,
+           b.customer_id as customer_id,
+           b.employee_date as employee_date,
+           SUM(gb.count) AS union_count,
+           SUM(gb.count * g.price) AS union_price
+           FROM good_employee gb
+           JOIN employee b ON b.id = gb.employee_id
+           JOIN good g ON g.id = gb.good_id
+           where
+           <foreach
+                   collection="array"
+                   item="customerId"
+                   separator=" or ">
+               (select b.customer_id
+               from employee b
+               where b.id = gb.employee_id
+               ) like concat('%',#{customerId},'%')
+           </foreach>
+           GROUP BY gb.employee_id
+       </select>
+
+       &lt;!&ndash;
+   SELECT gb.employee_id as employee_id,
+   b.customer_id as customer_id,
+   b.employee_date as employee_date,
+   SUM(gb.count) AS union_count,
+   SUM(gb.count * g.price) AS union_price
+   FROM good_employee gb
+   JOIN employee b ON b.id = gb.employee_id
+   JOIN good g ON g.id = gb.good_id
+   GROUP BY gb.employee_id;
+       &ndash;&gt;
+
+       <select id="orderByAsc" resultMap="EmployeeMap">
+           SELECT gb.employee_id as employee_id,
+           b.customer_id as customer_id,
+           b.employee_date as employee_date,
+           SUM(gb.count) AS union_count,
+           SUM(gb.count * g.price) AS union_price
+           FROM good_employee gb
+           JOIN employee b ON b.id = gb.employee_id
+           JOIN good g ON g.id = gb.good_id
+           GROUP BY gb.employee_id
+           order by
+           <choose>
+               <when test="column == 'COUNT'">
+                   count
+               </when>
+               <when test="column == 'CUSTOMER_ID'">
+                   customer
+               </when>
+               <when test="column == 'PRICE'">
+                   union_price
+               </when>
+               <when test="column == 'BILL_DATE'">
+                   employee_date
+               </when>
+               <otherwise>
+                   gb.employee_id
+               </otherwise>
+           </choose>
+           asc;
+       </select>
+       <select id="orderByDesc" resultMap="EmployeeMap">
+           SELECT gb.employee_id as employee_id,
+           b.customer_id as customer_id,
+           b.employee_date as employee_date,
+           SUM(gb.count) AS union_count,
+           SUM(gb.count * g.price) AS union_price
+           FROM good_employee gb
+           JOIN employee b ON b.id = gb.employee_id
+           JOIN good g ON g.id = gb.good_id
+           GROUP BY gb.employee_id
+           order by
+           <choose>
+               <when test="column == 'COUNT'">
+                   count
+               </when>
+               <when test="column == 'CUSTOMER_ID'">
+                   customer
+               </when>
+               <when test="column == 'PRICE'">
+                   union_price
+               </when>
+               <when test="column == 'BILL_DATE'">
+                   employee_date
+               </when>
+               <otherwise>
+                   gb.employee_id
+               </otherwise>
+           </choose>
+           desc;
+       </select>
+
+       <select id="dividePage" resultMap="EmployeeMap">
+           SELECT gb.employee_id as employee_id,
+           b.customer_id as customer_id,
+           b.employee_date as employee_date,
+           SUM(gb.count) AS union_count,
+           SUM(gb.count * g.price) AS union_price
+           FROM good_employee gb
+           JOIN employee b ON b.id = gb.employee_id
+           JOIN good g ON g.id = gb.good_id
+           GROUP BY gb.employee_id
+           limit #{start},#{len};
+       </select>
+
+       <select id="getLen" resultType="int">
+           select count(*) from employee
+       </select>-->
+</mapper>

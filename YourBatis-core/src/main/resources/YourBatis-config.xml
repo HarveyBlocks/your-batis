@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<config xmlns="http://batis.harvey.org/schema/config"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://batis.harvey.org/schema/config
+                            https://batis.harvey.org/schema/config/YourBatis-config.xsd">
+    <database>
+        <url>
+            <database-name>employee</database-name>
+            <host>redis</host>
+            <port>3306</port>
+        </url>
+        <auth>
+            <username>root</username>
+            <password>123456</password>
+        </auth>
+    </database>
+    <data-source>
+        <initialSize>5</initialSize>
+        <maxActive>10</maxActive>
+        <maxWaitMillion>3000</maxWaitMillion>
+    </data-source>
+</config>
