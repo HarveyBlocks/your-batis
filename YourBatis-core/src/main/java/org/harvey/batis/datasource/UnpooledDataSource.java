@@ -35,7 +35,7 @@ public class UnpooledDataSource implements DataSource {
 
     /**
      * Driver类类名, 实现{@link java.sql.Driver}接口的类, <br>
-     * 可以是数据库的JDBC提供如{@link com.mysql.jdbc.Driver},<br>
+     * 可以是数据库的JDBC提供如{@code com.mysql.jdbc.Driver},<br>
      * 也可以是数据库连接池提供
      */
     private String driverClassName;
