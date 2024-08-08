@@ -1,4 +1,4 @@
-package org.harvey.batis.executot;
+package org.harvey.batis.executor;
 
 
 /**

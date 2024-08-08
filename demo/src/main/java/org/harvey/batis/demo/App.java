@@ -1,10 +1,10 @@
 package org.harvey.batis.demo;
 
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.harvey.batis.demo.entity.Employee;
 import org.harvey.batis.demo.mapper.EmployeeMapper;
 import org.harvey.batis.demo.utils.SqlSessionFactoryUtils;
+import org.harvey.batis.session.SqlSession;
+import org.harvey.batis.session.SqlSessionFactory;
 
 import java.util.List;
 

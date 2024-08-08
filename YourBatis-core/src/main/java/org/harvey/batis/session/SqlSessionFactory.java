@@ -7,11 +7,12 @@ import org.harvey.batis.enums.TransactionIsolationLevel;
 import java.sql.Connection;
 
 /**
- * TODO
+ * 建造SqlSession的工厂
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
  * @date 2024-08-02 12:32
+ * @see SqlSession
  */
 public interface SqlSessionFactory {
 

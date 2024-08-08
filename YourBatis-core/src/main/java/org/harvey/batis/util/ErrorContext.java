@@ -4,7 +4,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 /**
- * TODO
+ * 错误日志上下文, 更好更漂亮的日志输出, <br>
+ * 每个线程独立的错误日志上下文<br>
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0

@@ -53,7 +53,23 @@ public class ClassLoaderWrapper {
 
 
     /**
+     * {@link ClassLoader#getResources(String)}的参数<br>
+     * <pre>{@code String[] paths = {
+     *      "org/harvey/batis/util/StrictMapTest.class",// 可
+     *      "org/harvey/batis/util/StrictMapTest", // 不可
+     *      "/org/harvey/batis/util/StrictMapTest.class", // 不可
+     *      "/org/harvey/batis/util/StrictMapTest", // 不可
+     *      "/org/harvey/batis/util/", // 不可
+     *      "/org/harvey/batis/util", // 不可
+     *      "org/harvey/batis/util/StrictMapTest.java", // 不可
+     *      "org/harvey/batis/util/StrictMapTest.yml", // 可
+     *      "org/harvey/batis/util/", // 可, 参数末尾有`/`, 结果就有`/`
+     *      "org/harvey/batis/util", // 可, 参数末尾无`/`, 结果就无`/`
+     * };}</pre>
+     * 其返回值是一个可迭代的URL集合, 形如:
+     * <pre>{@code file:/D:/IT_study/source/JDK/YourBatis/YourBatis-core/target/test-classes/org/harvey/batis/util/StrictMapTest.yml}</pre>
      * @see #getResourceAs(String, ClassLoader[], BiFunction)
+     * @see ClassLoader#getResources(String)
      */
     private static URL getResourceAsUrl0(String resource, ClassLoader[] classLoader) {
         return ClassLoaderWrapper.getResourceAs(resource, classLoader, ClassLoader::getResource);
@@ -64,9 +80,11 @@ public class ClassLoaderWrapper {
      *
      * @return the resource or null
      */
-    private static <R> R getResourceAs(String resource, ClassLoader[] classLoader,
-                                       BiFunction<ClassLoader, String, R> resourceSupplier) {
+    private static <R> R getResourceAs(String resource, ClassLoader[] classLoader, BiFunction<ClassLoader, String, R> resourceSupplier) {
         R returnValue = null;
+        if (classLoader == null) {
+            return returnValue;
+        }
         for (ClassLoader cl : classLoader) {
             if (cl == null) {
                 continue;
@@ -99,8 +117,7 @@ public class ClassLoaderWrapper {
     /**
      * 尝试用classLoader加载一个类
      */
-    private static Class<?> classForName0(String name, ClassLoader[] classLoader)
-            throws ClassNotFoundException {
+    private static Class<?> classForName0(String name, ClassLoader[] classLoader) throws ClassNotFoundException {
         for (ClassLoader cl : classLoader) {
             if (cl == null) {
                 continue;
@@ -118,8 +135,7 @@ public class ClassLoaderWrapper {
      * 将几个Classloader放入一个数组
      */
     ClassLoader[] getClassLoaders(ClassLoader classLoader) {
-        return new ClassLoader[]{
-                classLoader, // 参数指定的加载器
+        return new ClassLoader[]{classLoader, // 参数指定的加载器
                 defaultClassLoader, // 默认加载器, 由外界指定
                 Thread.currentThread().getContextClassLoader(), // 线程的加载器
                 this.getClass().getClassLoader(), // 本类的类加载器

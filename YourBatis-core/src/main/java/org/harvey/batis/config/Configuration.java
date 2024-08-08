@@ -10,6 +10,7 @@ import org.harvey.batis.builder.xml.XMLStatementBuilder;
 import org.harvey.batis.enums.ExecutorType;
 import org.harvey.batis.exception.UnfinishedFunctionException;
 import org.harvey.batis.exception.builder.IncompleteElementException;
+import org.harvey.batis.mapping.Environment;
 import org.harvey.batis.mapping.MappedStatement;
 import org.harvey.batis.reflection.factory.DefaultObjectFactory;
 import org.harvey.batis.reflection.factory.ObjectFactory;
@@ -29,6 +30,8 @@ import java.util.*;
  * @date 2024-08-02 13:28
  */
 public class Configuration {
+    @Setter
+    protected Environment environment;
     @Getter
     @Setter
     protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
@@ -59,11 +62,16 @@ public class Configuration {
     protected final Collection<MethodResolver> incompleteMethods = new LinkedList<>();
 
 
+    public Configuration(Environment environment) {
+        this();
+        this.environment = environment;
+    }
+
     /**
      * TODO
      */
     public Configuration() {
-        throw new UnfinishedFunctionException();
+        new UnfinishedFunctionException().printStackTrace(System.err);
     }
 
     /**
@@ -196,4 +204,11 @@ public class Configuration {
         }
     }
 
+
+    /**
+     * @see MapperRegistry#addMappers(String)
+     */
+    public void addMappers(String packageName) {
+        mapperRegistry.addMappers(packageName);
+    }
 }

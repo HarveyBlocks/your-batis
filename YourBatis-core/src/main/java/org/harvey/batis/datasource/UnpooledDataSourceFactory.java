@@ -1,8 +1,10 @@
 package org.harvey.batis.datasource;
 
 import org.harvey.batis.exception.datasource.DataSourceException;
+import org.harvey.batis.parsing.ConfigXmlConstants;
 import org.harvey.batis.reflection.MetaObject;
 import org.harvey.batis.reflection.SystemMetaObject;
+import org.harvey.batis.util.UrlBuilder;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -29,6 +31,20 @@ public class UnpooledDataSourceFactory implements DataSourceFactory {
         this.dataSource = dataSource;
     }
 
+    public static String parseUrl(Properties urlProps, Properties args) {
+        String protocol = (String) urlProps.get(ConfigXmlConstants.DATABASE_URL_PROTOCOL_ATTRIBUTION);
+        String database = (String) urlProps.get(ConfigXmlConstants.DATABASE_URL_DATABASE_NAME_ELEMENT);
+        String host = (String) urlProps.get(ConfigXmlConstants.DATABASE_URL_HOST_ELEMENT);
+        String port = (String) urlProps.get(ConfigXmlConstants.DATABASE_URL_PORT_ELEMENT);
+        UrlBuilder urlBuilder = new UrlBuilder()
+                .setProtocol(protocol)
+                .setHost(host)
+                .setPort(Integer.valueOf(port))
+                .setFilepath(database)
+                .setQueryParameters(args);
+        return urlBuilder.toString();
+    }
+
     /**
      * 为DataSource注入配置
      *
@@ -45,7 +61,8 @@ public class UnpooledDataSourceFactory implements DataSourceFactory {
             if (propertyName.startsWith(DRIVER_PROPERTY_PREFIX)) {
                 // 是driver.开头的配置
                 String value = properties.getProperty(propertyName);
-                String driverKey = propertyName.substring(DRIVER_PROPERTY_PREFIX_LENGTH); // 去除前缀
+                String driverKey = propertyName.substring(DRIVER_PROPERTY_PREFIX_LENGTH); // 去除前缀driver
+                // 重新存入(?????好没用的功能)
                 driverProperties.setProperty(driverKey, value);
             } else if (metaDataSource.hasSetter(propertyName)) {
                 // 对于可写的配置, 进行依赖注入

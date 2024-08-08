@@ -1,5 +1,8 @@
 package org.harvey.batis.datasource;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 池化的DataSource工厂, 其方法实现完全由其父类{@link UnpooledDataSourceFactory}提供
  *
@@ -12,5 +15,4 @@ public class PooledDataSourceFactory extends UnpooledDataSourceFactory {
     public PooledDataSourceFactory() {
         super(new PooledDataSource());
     }
-
 }

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://batis.harvey.org/schema/config"
+           xmlns="http://batis.harvey.org/schema/config"
+           elementFormDefault="qualified">
+    <xs:element name="url" type="Url"/>
+    <xs:element name="auth" type="Authorization"/>
+    <xs:element name="package" type="Package"/>
+    <xs:element name="database" type="DatabaseConfiguration"/>
+    <xs:element name="datasource" type="Datasource"/>
+    <xs:element name="transactionManager" type="TransactionManager"/>
+    <xs:element name="mappers" type="Mappers"/>
+    <xs:element name="config" type="Config"/>
+
+    <xs:simpleType name="Port">
+        <xs:restriction base="xs:integer">
+            <xs:maxInclusive value="65535"/>
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="Url">
+        <xs:sequence>
+            <xs:element name="protocol" type="xs:string"/>
+            <xs:element name="host" type="xs:string"/>
+            <xs:element name="port" type="Port"/>
+            <xs:element name="database-name" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="serverTimezone" type="xs:string" default="UTC"/>
+        <xs:attribute name="useSSL" type="xs:boolean" default="true"/>
+        <xs:attribute name="useUnicode" type="xs:boolean" default="true"/>
+        <xs:attribute name="characterEncoding" type="xs:string" default="utf8"/>
+    </xs:complexType>
+    <xs:complexType name="Authorization">
+        <xs:sequence>
+            <xs:element name="username" type="xs:string"/>
+            <xs:element name="password" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="Package">
+        <xs:attribute name="path" use="required" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:simpleType name="TransactionManagerClassName">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="org.harvey.batis.transaction.jdbc.JdbcTransactionFactory"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="TransactionManager">
+        <xs:attribute name="type" use="required"
+                      type="TransactionManagerClassName"/>
+    </xs:complexType>
+    <xs:complexType name="DatabaseConfiguration">
+        <xs:sequence>
+            <xs:element ref="url"/>
+            <xs:element ref="auth"/>
+        </xs:sequence>
+        <xs:attribute name="driverClassName" type="xs:string" default="com.mysql.cj.jdbc.Driver"/>
+        <xs:attribute name="type" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="Datasource">
+        <xs:sequence>
+            <xs:element name="initialSize" type="xs:integer" minOccurs="0"/>
+            <xs:element name="maxActive" type="xs:integer" minOccurs="0"/>
+            <xs:element name="maxWaitMillion" type="xs:integer" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Mappers">
+        <xs:sequence>
+            <xs:element ref="package" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Config">
+        <xs:sequence>
+            <xs:element ref="transactionManager"/>
+            <xs:element ref="database"/>
+            <xs:element ref="datasource" minOccurs="0"/>
+            <xs:element ref="mappers" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

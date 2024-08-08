@@ -13,6 +13,7 @@ import java.util.Arrays;
 public class TypeParameterResolver {
 
     private TypeParameterResolver() {
+        super();
     }
 
     /**
@@ -317,6 +318,7 @@ class SpecialTypeImpl {
 
 
         public ParameterizedTypeImpl(Class<?> rawType, Type ownerType, Type[] actualTypeArguments) {
+            super();
             this.rawType = rawType;
             this.ownerType = ownerType;
             this.actualTypeArguments = actualTypeArguments;
@@ -352,6 +354,7 @@ class SpecialTypeImpl {
         private final Type[] upperBounds;
 
         WildcardTypeImpl(Type[] lowerBounds, Type[] upperBounds) {
+            super();
             this.lowerBounds = lowerBounds;
             this.upperBounds = upperBounds;
         }
@@ -371,6 +374,7 @@ class SpecialTypeImpl {
         private final Type genericComponentType;
 
         GenericArrayTypeImpl(Type genericComponentType) {
+            super();
             this.genericComponentType = genericComponentType;
         }
 

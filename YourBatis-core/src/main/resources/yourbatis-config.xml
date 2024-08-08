@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns="http://batis.harvey.org/schema/config"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://batis.harvey.org/schema/config
+                            https://batis.harvey.org/schema/config/yourbatis-config.xsd">
+    <transactionManager type="org.harvey.batis.transaction.jdbc.JdbcTransactionFactory"/>
+    <database type="org.harvey.batis.datasource.UnpooledDataSourceFactory">
+        <url>
+            <protocol>jdbc:mysql</protocol>
+            <host>redis</host>
+            <port>3306</port>
+            <database-name>employee</database-name>
+        </url>
+        <auth>
+            <username>root</username>
+            <password>123456</password>
+        </auth>
+    </database>
+    <datasource>
+         <!--<initialSize>5</initialSize>
+         <maxActive>10</maxActive>
+         <maxWaitMillion>3000</maxWaitMillion>-->
+     </datasource>
+    <mappers>
+        <package path="org.harvey.batis.demo.mapper"/>
+    </mappers>
+</config>

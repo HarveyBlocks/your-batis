@@ -35,7 +35,7 @@ public class ResultMapResolver {
 
     /**
      * @see MapperBuilderAssistant#addResultMap(String, Class, String, Discriminator, List, Boolean)
-     * @thros IncompleteElementException
+     * @thros IncompleteElementException TODO
      */
     public ResultMap resolve() {
         return assistant.addResultMap(this.id, this.type, this.extend, this.discriminator, this.resultMappings, this.autoMapping);

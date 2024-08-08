@@ -2,6 +2,7 @@ package org.harvey.batis.datasource;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.harvey.batis.enums.TransactionIsolationLevel;
 import org.harvey.batis.io.log.Log;
 import org.harvey.batis.io.log.LogFactory;
 
@@ -213,9 +214,9 @@ public class PooledDataSource implements DataSource {
     }
 
     /**
-     * @see UnpooledDataSource#setDefaultTransactionIsolationLevel(Integer)
+     * @see UnpooledDataSource#setDefaultTransactionIsolationLevel(TransactionIsolationLevel)
      */
-    public void setDefaultTransactionIsolationLevel(Integer defaultTransactionIsolationLevel) {
+    public void setDefaultTransactionIsolationLevel(TransactionIsolationLevel defaultTransactionIsolationLevel) {
         dataSource.setDefaultTransactionIsolationLevel(defaultTransactionIsolationLevel);
         this.forceCloseAll();
     }
@@ -276,7 +277,7 @@ public class PooledDataSource implements DataSource {
     /**
      * @see UnpooledDataSource#getDefaultTransactionIsolationLevel()
      */
-    public Integer getDefaultTransactionIsolationLevel() {
+    public TransactionIsolationLevel getDefaultTransactionIsolationLevel() {
         return dataSource.getDefaultTransactionIsolationLevel();
     }
 
@@ -308,6 +309,7 @@ public class PooledDataSource implements DataSource {
      * @see #popConnection(String, String, int) 和其一起构成递归
      * @deprecated 这个方法不再维护poolState中繁杂的字段, 用于帮助思考
      */
+    @Deprecated
     private PooledConnection popConnectionFixInterruptedException(String username, String password, int localBadConnectionCount)
             throws SQLException {
         try {
@@ -325,6 +327,7 @@ public class PooledDataSource implements DataSource {
      * @see #popConnection(String, String)
      * @deprecated 这个方法不再维护poolState中繁杂的字段, 用于帮助思考
      */
+    @Deprecated
     private PooledConnection popConnection(String username, String password, int localBadConnectionCount)
             throws SQLException, InterruptedException {
         PooledConnection resultConn; // 最终需要返回的结果

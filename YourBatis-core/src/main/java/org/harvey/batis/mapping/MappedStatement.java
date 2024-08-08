@@ -1,9 +1,6 @@
 package org.harvey.batis.mapping;
 
-import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 import org.harvey.batis.enums.SqlCommandType;
 import org.harvey.batis.exception.UnfinishedFunctionException;
 
@@ -15,6 +12,10 @@ import org.harvey.batis.exception.UnfinishedFunctionException;
  * @date 2024-08-02 15:11
  */
 public class MappedStatement {
+    public MappedStatement() {
+        throw new UnfinishedFunctionException();
+    }
+
     @Getter
     private String id;
     @Getter

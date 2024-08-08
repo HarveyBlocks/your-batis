@@ -1,11 +1,12 @@
 package org.harvey.batis.binding;
 
 import org.harvey.batis.config.Configuration;
+import org.harvey.batis.exception.UnfinishedFunctionException;
 import org.harvey.batis.exception.binding.BindingException;
+import org.harvey.batis.io.xml.ResolverUtil;
 import org.harvey.batis.session.SqlSession;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * TODO
@@ -18,7 +19,7 @@ public class MapperRegistry {
     private final Configuration config;
 
     /**
-     * TODO
+     * Mapper接口类-Mapper代理工厂
      */
     private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap<>();
 
@@ -45,5 +46,65 @@ public class MapperRegistry {
         } catch (Exception e) {
             throw new BindingException("Error getting mapper instance. Cause: " + e, e);
         }
+    }
+
+    /**
+     * @see #addMappers(String, Class)
+     */
+    public void addMappers(String packageName) {
+        this.addMappers(packageName, Object.class);
+    }
+
+    /**
+     * TODO
+     *
+     * @param packageName TODO 包名? XML文件? java package?
+     * @param superType   父类类型
+     * @see #addMapper(Class)
+     */
+    public void addMappers(String packageName, Class<?> superType) {
+        ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<>();
+        resolverUtil.find(new ResolverUtil.IsSonMatcher(superType), packageName);
+        Set<Class<? extends Class<?>>> mapperSet = resolverUtil.getMatches();
+        for (Class<?> mapperClass : mapperSet) {
+            this.addMapper(mapperClass);
+        }
+    }
+
+
+    /**
+     * TODO
+     * 联系Mapper的XML文件和Mapper接口, 组建Mapper代理
+     */
+    public <T> void addMapper(Class<T> type) {
+        if (!type.isInterface()) {
+            return;
+        }
+        if (this.hasMapper(type)) {
+            throw new BindingException("Type " + type + " is already known to the MapperRegistry.");
+        }
+        boolean loadCompleted = false;
+        try {
+            knownMappers.put(type, new MapperProxyFactory<>(type));
+            // It's important that the type is added before the parser is run
+            // otherwise the binding may automatically be attempted by the
+            // mapper parser. If the type is already known, it won't try.
+            throw new UnfinishedFunctionException();
+        } finally {
+            if (!loadCompleted) {
+                knownMappers.remove(type);
+            }
+        }
+    }
+
+    public <T> boolean hasMapper(Class<T> type) {
+        return knownMappers.containsKey(type);
+    }
+
+    /**
+     * @return 所有Mapper的代理
+     */
+    public Collection<Class<?>> getMappers() {
+        return Collections.unmodifiableCollection(knownMappers.keySet());
     }
 }

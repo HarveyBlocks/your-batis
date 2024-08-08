@@ -53,13 +53,13 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
     @Override
     public SqlSession openSession(Connection connection) {
-        return openSessionFromConnection(configuration.getDefaultExecutorType(), connection);
+        return this.openSessionFromConnection(configuration.getDefaultExecutorType(), connection);
     }
 
 
     @Override
     public SqlSession openSession(ExecutorType execType, Connection connection) {
-        return openSessionFromConnection(execType, connection);
+        return this.openSessionFromConnection(execType, connection);
     }
 
     @Override
@@ -67,10 +67,16 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
         return configuration;
     }
 
+    /**
+     * TODO
+     */
     private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
         throw new UnfinishedFunctionException(execType, level, autoCommit);
     }
 
+    /**
+     * TODO
+     */
     private SqlSession openSessionFromConnection(ExecutorType execType, Connection connection) {
         throw new UnfinishedFunctionException(execType, connection);
     }

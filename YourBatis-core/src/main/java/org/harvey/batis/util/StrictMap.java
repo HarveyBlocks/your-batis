@@ -38,6 +38,7 @@ public class StrictMap<V> extends HashMap<String, V> {
     }
 
     public StrictMap(String name) {
+        super();
         this.name = name;
     }
 

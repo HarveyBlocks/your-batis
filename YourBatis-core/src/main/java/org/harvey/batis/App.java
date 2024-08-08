@@ -22,7 +22,7 @@ public class App {
 
     static {
         try {
-            String resource = "YourBatis-config2.xml";// mybatis核心配置文件
+            String resource = "YourBatis-config.xml";// mybatis核心配置文件
             Reader reader = Resources.getResourceAsReader(resource);
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
         } catch (IOException e) {
@@ -35,7 +35,7 @@ public class App {
     }
 
     public static void main(String[] args) {
-        System.out.println("Hello World");
+        String s = "Hello World";
         // jdbcDemo();
     }
 
@@ -51,6 +51,10 @@ public class App {
 
         Connection conn = DriverManager.getConnection(url, username, password);
 
+        testConnection(conn);
+    }
+
+    public static void testConnection(Connection conn) throws SQLException {
         //定义sql指令,结尾分号可写可不写
         String sql = "insert into tb_employee(name,age,salary) values('C君',36,12300.00); ";
 

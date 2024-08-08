@@ -52,7 +52,7 @@ public class UnpooledDataSource implements DataSource {
      * 默认事务隔离级别
      * 想用枚举{@link TransactionIsolationLevel}的, 但是由于魔数会警告, 故放弃
      */
-    private Integer defaultTransactionIsolationLevel;
+    private TransactionIsolationLevel defaultTransactionIsolationLevel;
     /**
      * 设置默认网络超时值, 用于等待数据库操作完成.
      */
@@ -191,7 +191,7 @@ public class UnpooledDataSource implements DataSource {
             conn.setAutoCommit(autoCommit);
         }
         if (defaultTransactionIsolationLevel != null) {
-            conn.setTransactionIsolation(defaultTransactionIsolationLevel);
+            conn.setTransactionIsolation(defaultTransactionIsolationLevel.level());
         }
     }
 

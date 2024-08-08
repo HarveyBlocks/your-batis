@@ -1,7 +1,6 @@
 package org.harvey.batis.builder;
 
 import org.harvey.batis.config.Configuration;
-import org.harvey.batis.exception.UnfinishedFunctionException;
 
 /**
  * TODO
@@ -10,7 +9,7 @@ import org.harvey.batis.exception.UnfinishedFunctionException;
  * @version 1.0
  * @date 2024-08-04 16:10
  */
-public class BaseBuilder {
+public abstract class BaseBuilder {
     protected final Configuration configuration;
     /*TODO
     protected final TypeAliasRegistry typeAliasRegistry;
