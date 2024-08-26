@@ -103,13 +103,8 @@ public class ParamNameResolver {
 
     /**
      * <p>
-     * A single non-special parameter is returned without a name.
-     * Multiple parameters are named using the naming rule.
-     * In addition to the default names, this method also adds the generic names (param1, param2,
-     * ...).
      * 将以一个单独的, 无名的参数(Object)的形式返回
      * 使用命名规则命名多个参数
-     *
      * </p>
      *
      * @param args 函数参数
@@ -133,9 +128,7 @@ public class ParamNameResolver {
         int i = 0;
         for (Map.Entry<Integer, String> entry : names.entrySet()) {
             param.put(entry.getValue(), args[entry.getKey()]);
-            // add generic param names (param1, param2, ...)
             final String genericParamName = GENERIC_NAME_PREFIX + (i + 1);
-            // ensure not to overwrite parameter named with @Param
             if (!names.containsValue(genericParamName)) {
                 param.put(genericParamName, args[entry.getKey()]);
             }

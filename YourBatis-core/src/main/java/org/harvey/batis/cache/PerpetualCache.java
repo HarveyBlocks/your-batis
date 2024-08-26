@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * TODO
  * 永久缓存<br>
  * 用HashMap实现的简单缓存
  *

@@ -297,7 +297,7 @@ public class Reflector {
     }
 
     /**
-     * 通过解析每一个字段, 极其对应的逐个Setter, 比对该配置对应的Getter, 找出最合适的Setter并存储
+     * 通过解析每一个字段, 及其对应的各个Setter, 比对该配置对应的Getter, 找出最合适的Setter并存储
      */
     private void resolveSetterConflicts(Map<String, List<Method>> conflictingSetters) {
         for (Map.Entry<String, List<Method>> entry : conflictingSetters.entrySet()) {

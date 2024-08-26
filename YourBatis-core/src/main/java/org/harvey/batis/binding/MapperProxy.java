@@ -29,7 +29,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
     // 继承Serializable干嘛?
 
     /**
-     * MethodHandlers生产出的Lookup能访问的作用域
+     * MethodHandles生产出的Lookup能访问的作用域
      */
     private static final int ALLOWED_MODES = MethodHandles.Lookup.PRIVATE |
             MethodHandles.Lookup.PROTECTED |

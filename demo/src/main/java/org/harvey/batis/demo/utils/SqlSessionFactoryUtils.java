@@ -23,11 +23,6 @@ public class SqlSessionFactoryUtils {
             String resource = "yourbatis-config.xml";//mybatis核心配置文件
             InputStream inputStream = Resources.getResourceAsStream(resource);
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
-            TypeHandlerRegistry typeHandlerRegistry = sqlSessionFactory.getConfiguration().getTypeHandlerRegistry();
-            /*if (!typeHandlerRegistry.hasTypeHandler(Employee.class)) {
-                typeHandlerRegistry.register(new EmployeeTypeHandler());
-            }*/
-
         } catch (IOException e) {
             e.printStackTrace(System.err);
         }

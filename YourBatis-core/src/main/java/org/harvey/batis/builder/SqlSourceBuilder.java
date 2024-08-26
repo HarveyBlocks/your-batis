@@ -15,7 +15,7 @@ import org.harvey.batis.reflection.MetaObject;
 import java.util.*;
 
 /**
- * TODO
+ * 解析SQL语句, 并将参数位置和参数值对应
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
@@ -32,6 +32,7 @@ public class SqlSourceBuilder extends BaseBuilder {
     public static final String PARAMETER_CLOSE_TOKEN = CLOSE_TOKEN;
     public static final String SCRIPT_OPEN_TOKEN = "${";
     public static final String SCRIPT_CLOSE_TOKEN = CLOSE_TOKEN;
+
     public SqlSourceBuilder(Configuration configuration) {
         super(configuration);
     }
@@ -63,12 +64,12 @@ public class SqlSourceBuilder extends BaseBuilder {
 
 
     private static class ParameterMappingTokenHandler extends BaseBuilder implements TokenHandler {
+        private final Class<?> parameterType;
         /**
          * SQL语句中, 每一个?对应的Parameter(按顺序)
          */
         @Getter
         private final List<ParameterMapping> parameterMappings = new ArrayList<>();
-        private final Class<?> parameterType;
         /**
          * @see org.harvey.batis.reflection.wrapper.MapWrapper
          */

@@ -45,12 +45,12 @@ import java.util.Set;
  * @version 1.0
  * @date 2024-08-07 16:54
  */
+@Getter
 public class ResolverUtil<T> {
     private static final Log LOG = LogFactory.getLog(ResolverUtil.class);
     /**
      * 如果通过了{@link ClassMatcher}的检查的类, 回被存储到本字段
      */
-    @Getter
     private final Set<Class<? extends T>> matches = new HashSet<>();
 
     /**

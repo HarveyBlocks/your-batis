@@ -18,11 +18,11 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * TODO
- *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
  * @date 2024-08-20 22:34
+ * @see TypeHandlerRegistry
+ * @see MappedStatement
  */
 public class DefaultParameterHandler implements ParameterHandler {
 
