@@ -33,4 +33,7 @@ public interface Transaction {
      * 关闭本{@link Transaction}对象的数据库连接
      */
     void close() throws SQLException;
+
+    Integer getTimeout();
+
 }

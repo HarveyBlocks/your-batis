@@ -13,17 +13,17 @@ public class ConsoleColorfulString {
 
     private static final String COLOR_PRE = "\033[";
 
-    public enum ConsoleColor {
+    public enum Color {
         BLACK, RED, GREEN, YELLOW, BLUE, PURPLE, SKY, GRAY, DEFAULT
     }
 
-    private static String colorPre(ConsoleColor color, ConsoleColor background) {
+    private static String colorPre(Color color, Color background) {
         StringBuilder result = new StringBuilder(COLOR_PRE);
-        if (background != ConsoleColor.BLACK) {
+        if (background != Color.DEFAULT) {
             result.append(background.ordinal() + 40).append(";");
         }
-        if (color == ConsoleColor.DEFAULT) {
-            color = ConsoleColor.BLACK;
+        if (color == Color.DEFAULT) {
+            color = Color.BLACK;
         }
         return result.append(color.ordinal() + 30).append("m").toString();
     }
@@ -32,14 +32,14 @@ public class ConsoleColorfulString {
     /**
      * 着色
      */
-    public static String painting(String str, ConsoleColor color) {
-        return painting(str, color, ConsoleColor.DEFAULT);
+    public static String painting(String str, Color color) {
+        return painting(str, color, Color.DEFAULT);
     }
 
     /**
      * 着色
      */
-    public static String painting(String str, ConsoleColor color, ConsoleColor background) {
+    public static String painting(String str, Color color, Color background) {
         return colorPre(color, background) + str + COLOR_POST;
     }
 

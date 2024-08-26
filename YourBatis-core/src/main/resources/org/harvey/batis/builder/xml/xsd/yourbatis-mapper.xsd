@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://batis.harvey.org/schema/config"
+           xmlns="http://batis.harvey.org/schema/config"
+           elementFormDefault="qualified">
+    <xs:element name="mapper" type="Mapper"/>
+    <xs:element name="param" type="TableFieldMap"/>
+    <xs:element name="result-map" type="ResultMap"/>
+    <xs:element name="result" type="TableFieldMap"/>
+    <xs:element name="select" type="ReadSql"/>
+    <xs:element name="insert" type="WriteSql"/>
+    <xs:element name="update" type="WriteSql"/>
+    <xs:element name="delete" type="WriteSql"/>
+    <xs:element name="trim" type="Trim"/>
+    <xs:element name="where" type="Where"/>
+    <xs:element name="set" type="Set"/>
+    <xs:element name="foreach" type="Foreach"/>
+    <xs:element name="choose" type="Choose"/>
+    <xs:element name="when" type="When"/>
+    <xs:element name="otherwise" type="Otherwise"/>
+    <xs:element name="if" type="If"/>
+    <xs:complexType name="Mapper">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="result-map"/>
+            <xs:element ref="select"/>
+            <xs:element ref="insert"/>
+            <xs:element ref="update"/>
+            <xs:element ref="delete"/>
+        </xs:choice>
+        <xs:attribute name="target" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="TableEntityMap">
+        <xs:attribute name="id" type="xs:ID" use="required"/>
+        <xs:attribute name="java-entity-type" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="ResultMap">
+        <xs:complexContent>
+            <xs:extension base="TableEntityMap">
+                <xs:sequence>
+                    <xs:element ref="result" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="TableFieldMap">
+        <xs:attribute name="table-column" type="xs:string" use="required"/>
+        <xs:attribute name="java-field" type="xs:string" use="required"/>
+        <!-- TODO <xs:attribute name="type-handler" type="xs:string"/>-->
+    </xs:complexType>
+
+    <xs:complexType name="ReadSql" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="SqlType">
+                <xs:attribute name="result-map">
+                    <xs:simpleType>
+                        <xs:list itemType="xs:IDREF"/>
+                    </xs:simpleType>
+                </xs:attribute>
+                <xs:attribute name="result-type" type="xs:string"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="WriteSql" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="SqlType"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="SqlType" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="DynamicSql">
+                <xs:attribute name="method-name" type="xs:ID" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="DynamicSql" mixed="true">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="trim"/>
+            <xs:element ref="where"/>
+            <xs:element ref="set"/>
+            <xs:element ref="foreach"/>
+            <xs:element ref="choose"/>
+            <xs:element ref="if"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="Trim" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="DynamicSql">
+                <!--给sql语句拼接的前缀-->
+                <xs:attribute name="prefix"/>
+                <!--如果prefixOverrides的值成为了SQL最前面的语句, 那么会被去掉-->
+                <xs:attribute name="prefixOverrides"/>
+                <!--给sql语句拼接的后缀-->
+                <xs:attribute name="suffix"/>
+                <!--如果suffixOverrides的值成为了SQL最后面的语句, 那么会被去掉-->
+                <xs:attribute name="suffixOverrides"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Where" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="DynamicSql"/>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Set" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="DynamicSql"/>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Foreach" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="DynamicSql">
+                <xs:attribute name="collection" use="required"/>
+                <!--创建一个"变量", 代表索引对应元素-->
+                <xs:attribute name="item"/>
+                <!--创建一个"变量", 代表索引, 对于Map, index就是key-->
+                <xs:attribute name="index"/>
+                <xs:attribute name="open"/>
+                <xs:attribute name="close"/>
+                <xs:attribute name="separator"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Choose">
+        <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="when"/>
+            <xs:element minOccurs="0" ref="otherwise"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="When" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="If"/>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Otherwise" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="DynamicSql"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="If" mixed="true">
+        <xs:complexContent>
+            <xs:extension base="DynamicSql">
+                <!--条件表达式, 为真则本节点内内容起作用-->
+                <xs:attribute name="match" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+</xs:schema>

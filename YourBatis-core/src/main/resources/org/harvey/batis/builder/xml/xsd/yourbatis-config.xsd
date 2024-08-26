@@ -11,6 +11,9 @@
     <xs:element name="datasource" type="Datasource"/>
     <xs:element name="transactionManager" type="TransactionManager"/>
     <xs:element name="mappers" type="Mappers"/>
+    <xs:element name="properties" type="Properties"/>
+    <xs:element name="property" type="Property"/>
+    <xs:element name="resource" type="Resource"/>
     <xs:element name="config" type="Config"/>
 
     <xs:simpleType name="Port">
@@ -28,6 +31,7 @@
         </xs:sequence>
         <xs:attribute name="serverTimezone" type="xs:string" default="UTC"/>
         <xs:attribute name="useSSL" type="xs:boolean" default="true"/>
+        <xs:attribute name="allowMultiQueries" type="xs:boolean" default="false"/>
         <xs:attribute name="useUnicode" type="xs:boolean" default="true"/>
         <xs:attribute name="characterEncoding" type="xs:string" default="utf8"/>
     </xs:complexType>
@@ -72,14 +76,30 @@
             <xs:element ref="package" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
+    <xs:complexType name="Properties">
+        <xs:sequence>
+            <xs:element ref="property" minOccurs="0" maxOccurs="unbounded"/>
+            <!--resource文件名, properties文件-->
+            <xs:element ref="resource" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 
+    <xs:complexType name="Property">
+        <xs:attribute name="key" type="xs:string" use="required"/>
+        <xs:attribute name="value" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="Resource">
+        <xs:attribute name="filepath" use="required"/>
+    </xs:complexType>
     <xs:complexType name="Config">
         <xs:sequence>
+            <xs:element ref="properties" minOccurs="0"/>
             <xs:element ref="transactionManager"/>
             <xs:element ref="database"/>
             <xs:element ref="datasource" minOccurs="0"/>
             <xs:element ref="mappers" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
+
 
 </xs:schema>

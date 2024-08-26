@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
+import java.util.StringJoiner;
 
 /**
  * 构建URL的工具类
@@ -37,19 +38,18 @@ public class UrlBuilder {
 
     public static String queryParameters2String(Properties args) {
         if (args == null) {
-            return "";
+            return null;
         }
         StringBuilder builder = new StringBuilder();
-        int size = args.size();
+        StringJoiner joiner = new StringJoiner("&");
         for (Object key : args.keySet()) {
             String propertyName = (String) key;
             String propertyValue = args.getProperty(propertyName);
+            builder.setLength(0);
             builder.append(propertyName).append("=").append(propertyValue);
-            if (--size != 0) {
-                builder.append("&");
-            }
+            joiner.add(builder);
         }
-        return builder.toString();
+        return joiner.toString();
     }
 
     public String file() {
@@ -60,7 +60,10 @@ public class UrlBuilder {
             }
             builder.append(filepath);
         }
-        builder.append("?").append(UrlBuilder.queryParameters2String(queryParameters));
+        String argStr = UrlBuilder.queryParameters2String(queryParameters);
+        if (argStr != null) {
+            builder.append("?").append(argStr);
+        }
         return builder.toString();
     }
 

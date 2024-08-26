@@ -64,9 +64,7 @@ public class LogFactory {
         try {
             Constructor<? extends Log> candidate = implClass.getConstructor(String.class);// 候选人
             Log log = candidate.newInstance(LogFactory.class.getName()); // 实例化
-            if (log.isDebugEnabled()) {
-                log.debug("Logging initialized using '" + implClass + "' adapter.");
-            }
+            log.debugIfEnable("Logging initialized using '" + implClass + "' adapter.");
             logConstructor = candidate; // 实例化成功者, 存入logConstructor字段
         } catch (Throwable t) {
             throw new LogException("Error setting Log implementation.  Cause: " + t, t);

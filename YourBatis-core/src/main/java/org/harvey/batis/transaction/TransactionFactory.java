@@ -1,6 +1,6 @@
 package org.harvey.batis.transaction;
 
-import org.harvey.batis.enums.TransactionIsolationLevel;
+import org.harvey.batis.util.enums.TransactionIsolationLevel;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

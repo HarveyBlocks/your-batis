@@ -13,10 +13,11 @@ import java.util.function.Function;
  * @version 1.0
  * @date 2024-08-06 14:56
  */
+@Getter
 @Accessors(chain = true)
 public class XPathBuilder {
-    public static final String GRADUAL_FIND = "/";
-    public static final String ALL_LAYER_FIND = "//";
+    public static final String ABSOLUTE_PATH = "/";
+    public static final String ALL_LAYER_PATH = "//";
     public static final String NAMESPACE_SEPARATOR = ":";
     public static final String NOW_POSITION = ".";
     public static final String PRE_POSITION = "..";
@@ -25,17 +26,20 @@ public class XPathBuilder {
     public static final String ATTRIBUTION_PREFIX = "@";
     public static final Function<String, String> AT_WRAPPER = (str) -> "[" + str + "]";
 
-    @Getter
     private final StringBuilder builder;
     /**
      * 设置一次, 之后所有的find都有效~
      */
     @Setter
     private String namespace = null;
-
+    /**
+     * 开启绝对路径
+     */
+    @Setter
+    private boolean absolute = true;
 
     public XPathBuilder() {
-        builder = new StringBuilder();
+        this(new StringBuilder());
     }
 
     public XPathBuilder(StringBuilder builder) {
@@ -50,6 +54,25 @@ public class XPathBuilder {
         return this.findGradually(PRE_POSITION);
     }
 
+    private XPathBuilder append(String str) {
+        this.builder.append(str);
+        return this;
+    }
+
+    public void clear() {
+        this.builder.setLength(0);
+    }
+
+    @Override
+    public String toString() {
+        String result = this.builder.toString();
+        if (!absolute && result.startsWith(ABSOLUTE_PATH)) {
+            // 想要相对路径
+            return result.substring(1, builder.length());
+        }
+        return result;
+    }
+
     /**
      * 构造/config/student/name
      */
@@ -61,15 +84,18 @@ public class XPathBuilder {
         if (elementName == null || elementName.isEmpty()) {
             return this;
         }
-        builder.append(gradually ? GRADUAL_FIND : ALL_LAYER_FIND);
+        return this.append(gradually ? ABSOLUTE_PATH : ALL_LAYER_PATH)
+                .appendElementPathWithNs(elementName);
+    }
+
+    private XPathBuilder appendElementPathWithNs(String elementName) {
         if (!NOW_POSITION.equals(elementName) && !PRE_POSITION.equals(elementName)) {
             // 不是`.`,不是`..`, 可以加ns
             if (this.namespace != null && !this.namespace.isEmpty()) {
-                builder.append(this.namespace).append(NAMESPACE_SEPARATOR);
+                this.append(this.namespace).append(NAMESPACE_SEPARATOR);
             }
         }
-        builder.append(elementName);
-        return this;
+        return this.append(elementName);
     }
 
     /**
@@ -81,8 +107,7 @@ public class XPathBuilder {
     }
 
     public XPathBuilder attribution(String attribute) {
-        builder.append(ATTRIBUTION_PREFIX).append(attribute);
-        return this;
+        return this.append(ATTRIBUTION_PREFIX).append(attribute);
     }
 
     public XPathBuilder anyAttribution() {
@@ -93,31 +118,24 @@ public class XPathBuilder {
         return this.findGradually(ANY);
     }
 
+    public XPathBuilder union(String elementName) {
+        return this.union().appendElementPathWithNs(elementName);
+    }
+
     public XPathBuilder union() {
-        builder.append(UNION);
-        return this;
+        return this.append(UNION);
     }
 
     public XPathBuilder at(String expression) {
         if (expression == null || expression.isEmpty()) {
             return this;
         }
-        builder.append(AT_WRAPPER.apply(expression));
-        return this;
+        return this.append(AT_WRAPPER.apply(expression));
     }
 
     public XPathBuilder atAnyAttribution() {
         return this.at(ATTRIBUTION_PREFIX + ANY);
     }
 
-    public String clear() {
-        String result = this.builder.toString();
-        this.builder.setLength(0);
-        return result;
-    }
 
-    @Override
-    public String toString() {
-        return this.builder.toString();
-    }
 }

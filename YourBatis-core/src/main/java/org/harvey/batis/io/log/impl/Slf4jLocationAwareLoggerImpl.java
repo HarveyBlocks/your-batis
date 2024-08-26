@@ -4,10 +4,10 @@ import org.harvey.batis.io.log.Log;
 import org.harvey.batis.io.log.LogFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
+import org.slf4j.event.Level;
 import org.slf4j.spi.LocationAwareLogger;
 
 /**
- *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
  * @date 2024-08-01 14:28

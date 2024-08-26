@@ -1,5 +1,6 @@
 package org.harvey.batis.binding;
 
+import org.harvey.batis.builder.xml.MapperBuilder;
 import org.harvey.batis.config.Configuration;
 import org.harvey.batis.exception.UnfinishedFunctionException;
 import org.harvey.batis.exception.binding.BindingException;
@@ -9,7 +10,7 @@ import org.harvey.batis.session.SqlSession;
 import java.util.*;
 
 /**
- * TODO
+ * 将扫描到的Mapper加入到{@link #knownMappers}中
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
@@ -56,10 +57,12 @@ public class MapperRegistry {
     }
 
     /**
-     * TODO
+     * 获取是packageName下所有的superType的子类
      *
-     * @param packageName TODO 包名? XML文件? java package?
+     * @param packageName 包名
      * @param superType   父类类型
+     * @see ResolverUtil
+     * @see ResolverUtil.IsSonMatcher
      * @see #addMapper(Class)
      */
     public void addMappers(String packageName, Class<?> superType) {
@@ -74,7 +77,7 @@ public class MapperRegistry {
 
     /**
      * TODO
-     * 联系Mapper的XML文件和Mapper接口, 组建Mapper代理
+     * 将Mapper接口(如果type是接口的话)存入{@link #knownMappers}
      */
     public <T> void addMapper(Class<T> type) {
         if (!type.isInterface()) {
@@ -86,10 +89,10 @@ public class MapperRegistry {
         boolean loadCompleted = false;
         try {
             knownMappers.put(type, new MapperProxyFactory<>(type));
-            // It's important that the type is added before the parser is run
-            // otherwise the binding may automatically be attempted by the
-            // mapper parser. If the type is already known, it won't try.
-            throw new UnfinishedFunctionException();
+            // 检查注解? 暂无需求
+            MapperBuilder parser = new MapperBuilder(config, type);
+            parser.parse();
+            loadCompleted = true;
         } finally {
             if (!loadCompleted) {
                 knownMappers.remove(type);

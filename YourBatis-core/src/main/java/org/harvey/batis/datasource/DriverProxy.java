@@ -1,6 +1,9 @@
 package org.harvey.batis.datasource;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverPropertyInfo;
+import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Logger;
 

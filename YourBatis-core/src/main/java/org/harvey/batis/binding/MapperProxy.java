@@ -1,5 +1,6 @@
 package org.harvey.batis.binding;
 
+import org.harvey.batis.exception.UnfinishedFunctionException;
 import org.harvey.batis.session.SqlSession;
 import org.harvey.batis.util.ReflectionExceptionUnwrappedMaker;
 
@@ -15,12 +16,14 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * TODO
- * 给出了实现MapperInterface的方法的方式, 即依据Mapper.xml
+ * 给出了实现MapperInterface的方法的方式, 即依据Mapper.xml实现
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
  * @date 2024-08-02 13:36
+ * @see #wrap2MapperMethodInvoker
+ * @see PlainMethodInvoker
+ * @see DefaultMethodInvoker
  */
 public class MapperProxy<T> implements InvocationHandler, Serializable {
     // 继承Serializable干嘛?
@@ -120,16 +123,14 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
     }
 
     /**
-     * 如果{@link #methodCache}中存在{@link MapperMethodInvoker}, 否则将参数的 {@param method} 反射, 包装成{@link MapperMethodInvoker}<br>
+     * 如果{@link #methodCache}中存在{@link MapperMethodInvoker}, 直接返回<br>
+     * 否则将参数的 {@param method} 反射, 包装成{@link MapperMethodInvoker}<br>
      * 但是包装之后, 将MapperMethodInvoker存入{@link #methodCache}
      *
      * @param method 获取其MapperMethodInvoker
      */
     private MapperMethodInvoker cachedInvoker(Method method) throws Throwable {
         try {
-            // A workaround for https://bugs.openjdk.java.net/browse/JDK-8161372
-            // It should be removed once the fix is backport to Java 8 or
-            // MyBatis drops Java 8 support. See gh-1929
             // 获取执行对象
             MapperMethodInvoker invoker = methodCache.get(method);
             if (invoker != null) {
@@ -137,6 +138,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
             }
             // 如果不存在，则执行映射, 返回的结果, 是映射后的结果
             // 而且, 如果不存在, 且(value=wrap2MapperMethodInvoker(key))!=null, 将这一组(key, value)存入methodCache
+            // 类似于懒加载
             return methodCache.computeIfAbsent(method, this::wrap2MapperMethodInvoker);
         } catch (RuntimeException re) {
             // 解除里面抓住的RuntimeException包装
@@ -148,8 +150,10 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
     /**
      * 依据Java8和Java9不同版本, 用不同的反射方法, 将Method包装成{@link MapperMethodInvoker}后返回
      *
-     * @throws RuntimeException 可能是包装了{@link IllegalAccessException}或{@link InstantiationException}或
-     *                          {@link InvocationTargetException}, 或{@link java.util.NoSuchElementException}
+     * @throws RuntimeException 可能是包装了{@link IllegalAccessException},
+     *                          或{@link InstantiationException},
+     *                          或{@link InvocationTargetException},
+     *                          或{@link java.util.NoSuchElementException}
      */
     private MapperMethodInvoker wrap2MapperMethodInvoker(Method method) {
         // 默认方法是指公共非抽象实例方法
@@ -179,6 +183,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
      */
     private MethodHandle getMethodHandleJava9(Method method)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+
         Objects.requireNonNull(PRIVATE_LOOKUP_IN);
         final Class<?> declaringClass = method.getDeclaringClass();
         // null.privateLookupIn(declaringClass,lookup), 因为是静态方法, 所以没人调用
@@ -219,16 +224,24 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
     public interface MapperMethodInvoker {
         /**
          * 实现该方法, 以实现不同的代理方式
+         *
+         * @param proxy      执行方法的实例对象
+         * @param method     被执行的方法
+         * @param args       被执行方法的参数
+         * @param sqlSession 必要的数据库连接
          */
         Object invoke(Object proxy, Method method, Object[] args, SqlSession sqlSession) throws Throwable;
     }
 
     /**
      * TODO
+     * 代理类实现Mapper接口的抽象方法
+     *
+     * @see #invoke(Object, Method, Object[])
      */
     private static class PlainMethodInvoker implements MapperMethodInvoker {
         /**
-         * TODO
+         * 被包装的抽象接口
          */
         private final MapperMethod mapperMethod;
 
@@ -239,9 +252,12 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 
         /**
          * TODO
+         *
+         * @see MapperMethod
+         * @see MapperMethod#execute(SqlSession, Object[])
          */
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args, SqlSession sqlSession) throws Throwable {
+        public Object invoke(Object ignoreObj, Method ignoreMethod, Object[] args, SqlSession sqlSession) throws Throwable {
             return mapperMethod.execute(sqlSession, args);
         }
     }

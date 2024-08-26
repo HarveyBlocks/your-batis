@@ -2,7 +2,7 @@ package org.harvey.batis.datasource;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.harvey.batis.enums.TransactionIsolationLevel;
+import org.harvey.batis.util.enums.TransactionIsolationLevel;
 import org.harvey.batis.io.log.Log;
 import org.harvey.batis.io.log.LogFactory;
 
@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 
 /**
- * TODO
+ * 被池化的Datasource
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0

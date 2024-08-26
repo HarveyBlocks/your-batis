@@ -1,6 +1,7 @@
 package org.harvey.batis.demo.mapper;
 
 
+import org.harvey.batis.annotation.Param;
 import org.harvey.batis.demo.entity.Employee;
 
 import java.util.List;
@@ -12,17 +13,30 @@ import java.util.List;
  */
 public interface EmployeeMapper {
     List<Employee> selectAll();
-/*  暂不测试
+
+    List<Employee> select(Employee employee);
+
     List<Employee> selectById(@Param("id") int id);
-    List<Employee> selectByIds(int[] id);
-    List<Employee> orderByAsc( @Param("column") String column);
-    List<Employee> orderByDesc( @Param("column") String column);
-    List<Employee> dividePage( @Param("start") int start,@Param("len") int len);
-    int getLen();
-    int addEmployee(Employee employee);
+
+    List<Employee> selectByIds(@Param("ids") int[] id);
+
     int delById(int id);
+/*暂不测试    List<Employee> orderByAsc(@Param("column") String column);
+
+    List<Employee> orderByDesc(@Param("column") String column);
+
+    List<Employee> dividePage(@Param("start") int start, @Param("len") int len);
+
+    int getLen();
+
+    int addEmployee(Employee employee);
+
+    int delById(int id);
+
     int delByIds(int[] ids);
-    int updateByMessage(@Param("id") int id,@Param("customerId") int customerId,@Param("employeeDate") Date employeeDate);
+
+    int updateByMessage(@Param("id") int id, @Param("customerId") int customerId, @Param("employeeDate") Date employeeDate);
+
     int update(Employee employee);*/
 
 }

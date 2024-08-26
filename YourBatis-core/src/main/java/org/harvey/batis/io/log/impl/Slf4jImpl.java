@@ -1,6 +1,8 @@
 package org.harvey.batis.io.log.impl;
 
 import org.harvey.batis.io.log.Log;
+import org.harvey.batis.io.log.impl.Slf4jLocationAwareLoggerImpl;
+import org.harvey.batis.io.log.impl.Slf4jLoggerImpl;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.spi.LocationAwareLogger;

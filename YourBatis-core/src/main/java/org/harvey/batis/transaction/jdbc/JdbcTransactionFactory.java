@@ -1,6 +1,6 @@
 package org.harvey.batis.transaction.jdbc;
 
-import org.harvey.batis.enums.TransactionIsolationLevel;
+import org.harvey.batis.util.enums.TransactionIsolationLevel;
 import org.harvey.batis.transaction.Transaction;
 import org.harvey.batis.transaction.TransactionFactory;
 

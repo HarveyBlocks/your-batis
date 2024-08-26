@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<mapper xmlns="http://batis.harvey.org/schema/config"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://batis.harvey.org/schema/config
+                            https://batis.harvey.org/schema/config/yourbatis-mapper.xsd"
+        target="org.harvey.batis.demo.mapper.BillMapper"><!--名字写代理接口-->
+
+
+    <result-map id="BillMap" java-entity-type="org.harvey.batis.demo.entity.Bill">
+        <result table-column="id" java-field="id"/>
+        <result table-column="bill_id" java-field="id"/>
+        <result table-column="gb_bill_id" java-field="id"/>
+        <result table-column="union_price" java-field="price"/>
+        <result table-column="customer_id" java-field="customerId"/>
+        <result table-column="customer" java-field="customerId"/>
+        <result table-column="bill_date" java-field="billDate"/>
+        <result table-column="union_count" java-field="count"/>
+    </result-map>
+    <!---->
+    <result-map id="GoodMap_" java-entity-type="org.harvey.batis.demo.entity.Good">
+        <result table-column="id" java-field="id"/>
+        <result table-column="name" java-field="name"/>
+        <result table-column="price" java-field="price"/>
+        <result table-column="stock" java-field="stock"/>
+    </result-map>
+    <insert method-name="addBill">
+        insert into bill(customer_id,bill_date)
+        values(#{customerId},#{billDate});
+    </insert>
+    <insert method-name="addGoods">
+        insert into good_bill(bill_id,good_id,count)
+        value
+        <foreach
+                collection="list"
+                item="each"
+                separator=",">
+            (#{each.billId},#{each.goodId},#{each.count})
+        </foreach>
+    </insert>
+
+    <delete method-name="delById">
+        delete from bill where
+        id = #{id}
+    </delete>
+
+    <delete method-name="delByIds">
+        delete from bill where
+        id in
+        <foreach
+                collection="array"
+                item="id"
+                separator=","
+                open="("
+                close=")">
+            #{id}
+        </foreach>
+        ;
+        <!--删除了个寂寞也是删,离谱-->
+    </delete>
+
+    <update method-name="update">
+        update bill
+        <set>
+            <!--↓这里用and而不是&&-->
+            <if match="customerId!=null and customerId!= '' ">
+                customer_id = #{customerId},
+            </if>
+            <if match="billDate!=null">
+                bill_date = #{billDate}
+            </if>
+        </set>
+        where
+        id=#{id}
+        ;
+        <!--如果good不写id,id默认为0,会删除id = 0 的 商品 不符合-->
+    </update>
+
+    <update method-name="updateByMessage">
+        update bill
+        <set>
+            <!--↓这里用and而不是&&-->
+            <if match="customerId!=null and customerId!= '' ">
+                customer_id = #{customerId},
+            </if>
+            <if match="billData!=null and billData!=''">
+                bill_date = #{billDate},
+            </if>
+        </set>
+        where
+        id=#{id}
+        ;
+        <!--如果good不写id,id默认为0,会删除id = 0 的 商品 不符合-->
+
+    </update>
+
+
+    <!--
+
+    SELECT gb.bill_id as bill_id,
+b.customer_id as customer_id,
+b.bill_date as bill_date,
+SUM(gb.count) AS union_count,
+SUM(gb.count * g.price) AS union_price
+FROM good_bill gb
+JOIN bill b ON b.id = gb.bill_id
+JOIN good g ON g.id = gb.good_id
+GROUP BY gb.bill_id;
+    -->
+    <!--id是这一句命令的唯一标识,不能重复-->
+    <select method-name="selectAll" result-map="BillMap"><!--起了别名之后就方便了-->
+        SELECT gb.bill_id as bill_id,
+        b.customer_id as customer_id,
+        b.bill_date as bill_date,
+        SUM(gb.count) AS union_count,
+        SUM(gb.count * g.price) AS union_price
+        FROM good_bill gb
+        JOIN bill b ON b.id = gb.bill_id
+        JOIN good g ON g.id = gb.good_id
+        GROUP BY gb.bill_id;
+    </select>
+
+
+    <select method-name="selectById" result-map="BillMap">
+        SELECT gb.bill_id as bill_id,
+        b.customer_id as customer_id,
+        b.bill_date as bill_date,
+        SUM(gb.count) AS union_count,
+        SUM(gb.count * g.price) AS union_price
+        FROM good_bill gb
+        JOIN bill b ON b.id = gb.bill_id
+        JOIN good g ON g.id = gb.good_id
+        where bill_id like concat('%',#{id},'%')
+        GROUP BY gb.bill_id;
+    </select>
+
+    <select method-name="selectByIds" result-map="BillMap">
+        SELECT gb.bill_id as bill_id,
+        b.customer_id as customer_id,
+        b.bill_date as bill_date,
+        SUM(gb.count) AS union_count,
+        SUM(gb.count * g.price) AS union_price
+        FROM good_bill gb
+        JOIN bill b ON b.id = gb.bill_id
+        JOIN good g ON g.id = gb.good_id
+        where
+        <foreach
+                collection="array"
+                item="id"
+                separator=" or ">
+            bill_id like concat('%',#{id},'%')
+        </foreach>
+        GROUP BY gb.bill_id;
+    </select>
+
+
+    <select method-name="selectByCustomerId" result-map="BillMap">
+        SELECT gb.bill_id as bill_id,
+        b.customer_id as customer_id,
+        b.bill_date as bill_date,
+        SUM(gb.count) AS union_count,
+        SUM(gb.count * g.price) AS union_price
+        FROM good_bill gb
+        JOIN bill b ON b.id = gb.bill_id
+        JOIN good g ON g.id = gb.good_id
+        where (select b.customer_id
+        from bill b
+        where b.id = gb.bill_id
+        ) like concat('%',#{customerId},'%')
+        GROUP BY gb.bill_id;
+    </select>
+
+    <select method-name="selectByCustomerIds" result-map="BillMap">
+        SELECT gb.bill_id as bill_id,
+        b.customer_id as customer_id,
+        b.bill_date as bill_date,
+        SUM(gb.count) AS union_count,
+        SUM(gb.count * g.price) AS union_price
+        FROM good_bill gb
+        JOIN bill b ON b.id = gb.bill_id
+        JOIN good g ON g.id = gb.good_id
+        where
+        <foreach
+                collection="array"
+                item="customerId"
+                separator=" or ">
+            (select b.customer_id
+            from bill b
+            where b.id = gb.bill_id
+            ) like concat('%',#{customerId},'%')
+        </foreach>
+        GROUP BY gb.bill_id
+    </select>
+
+    <!--
+SELECT gb.bill_id as bill_id,
+b.customer_id as customer_id,
+b.bill_date as bill_date,
+SUM(gb.count) AS union_count,
+SUM(gb.count * g.price) AS union_price
+FROM good_bill gb
+JOIN bill b ON b.id = gb.bill_id
+JOIN good g ON g.id = gb.good_id
+GROUP BY gb.bill_id;
+    -->
+
+    <select method-name="orderByAsc" result-map="BillMap">
+        SELECT gb.bill_id as bill_id,
+        b.customer_id as customer_id,
+        b.bill_date as bill_date,
+        SUM(gb.count) AS union_count,
+        SUM(gb.count * g.price) AS union_price
+        FROM good_bill gb
+        JOIN bill b ON b.id = gb.bill_id
+        JOIN good g ON g.id = gb.good_id
+        GROUP BY gb.bill_id
+        order by
+        <choose>
+            <when match="column == 'COUNT'">
+                count
+            </when>
+            <when match="column == 'CUSTOMER_ID'">
+                customer
+            </when>
+            <when match="column == 'PRICE'">
+                union_price
+            </when>
+            <when match="column == 'BILL_DATE'">
+                bill_date
+            </when>
+            <otherwise>
+                gb.bill_id
+            </otherwise>
+        </choose>
+        asc;
+    </select>
+    <select method-name="orderByDesc" result-map="BillMap">
+        SELECT gb.bill_id as bill_id,
+        b.customer_id as customer_id,
+        b.bill_date as bill_date,
+        SUM(gb.count) AS union_count,
+        SUM(gb.count * g.price) AS union_price
+        FROM good_bill gb
+        JOIN bill b ON b.id = gb.bill_id
+        JOIN good g ON g.id = gb.good_id
+        GROUP BY gb.bill_id
+        order by
+        <choose>
+            <when match="column == 'COUNT'">
+                count
+            </when>
+            <when match="column == 'CUSTOMER_ID'">
+                customer
+            </when>
+            <when match="column == 'PRICE'">
+                union_price
+            </when>
+            <when match="column == 'BILL_DATE'">
+                bill_date
+            </when>
+            <otherwise>
+                gb.bill_id
+            </otherwise>
+        </choose>
+        desc;
+    </select>
+
+    <select method-name="dividePage" result-map="BillMap">
+        SELECT gb.bill_id as bill_id,
+        b.customer_id as customer_id,
+        b.bill_date as bill_date,
+        SUM(gb.count) AS union_count,
+        SUM(gb.count * g.price) AS union_price
+        FROM good_bill gb
+        JOIN bill b ON b.id = gb.bill_id
+        JOIN good g ON g.id = gb.good_id
+        GROUP BY gb.bill_id
+        limit #{start},#{len};
+    </select>
+
+    <select method-name="selectGoods" result-map="GoodMap_">
+        select g.id, g.name, g.price, g.stock
+        from good g
+        where g.id in (select gb.good_id
+        from good_bill gb
+        where gb.bill_id like concat('%',#{billId},'%'));
+    </select>
+
+</mapper>

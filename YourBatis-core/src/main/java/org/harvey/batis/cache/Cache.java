@@ -8,4 +8,15 @@ package org.harvey.batis.cache;
  * @date 2024-08-04 16:05
  */
 public interface Cache {
+    String getId();
+
+    int getSize();
+
+    void putObject(Object key, Object value);
+
+    Object getObject(Object key);
+
+    Object removeObject(Object key);
+
+    void clear();
 }

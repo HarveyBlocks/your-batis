@@ -1,6 +1,8 @@
 package org.harvey.batis.builder.xml;
 
 import org.harvey.batis.io.Resources;
+import org.harvey.batis.parsing.ConfigXmlConstants;
+import org.harvey.batis.parsing.MapperXmlConstants;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -19,8 +21,8 @@ import java.util.Locale;
 public class XMLMapperEntityResolver implements EntityResolver {
 
     private static final String XSD_DICTIONARY_PATH = "org/harvey/batis/builder/xml/xsd/";
-    private static final String YOURBATIS_CONFIG_SYSTEM = "yourbatis-config.xsd";
-    private static final String YOURBATIS_MAPPER_SYSTEM = "yourbatis-mapper.xsd";
+    private static final String YOURBATIS_CONFIG_SYSTEM = ConfigXmlConstants.XSD_FILENAME;
+    private static final String YOURBATIS_MAPPER_SYSTEM = MapperXmlConstants.XSD_FILENAME;
     private static final String YOURBATIS_CONFIG_XSD = XSD_DICTIONARY_PATH + YOURBATIS_CONFIG_SYSTEM;
     private static final String YOURBATIS_MAPPER_XSD = XSD_DICTIONARY_PATH + YOURBATIS_MAPPER_SYSTEM;
 

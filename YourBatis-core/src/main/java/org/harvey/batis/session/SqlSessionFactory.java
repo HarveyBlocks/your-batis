@@ -1,8 +1,8 @@
 package org.harvey.batis.session;
 
 import org.harvey.batis.config.Configuration;
-import org.harvey.batis.enums.ExecutorType;
-import org.harvey.batis.enums.TransactionIsolationLevel;
+import org.harvey.batis.util.enums.ExecutorType;
+import org.harvey.batis.util.enums.TransactionIsolationLevel;
 
 import java.sql.Connection;
 

@@ -30,6 +30,10 @@ public class Environment {
         this.dataSource = dataSource;
     }
 
+    public String getId() {
+        return "dev";
+    }
+
     public static class Builder {
         private DataSource dataSource;
         private TransactionFactory transactionFactory;

@@ -9,6 +9,12 @@ import java.util.Enumeration;
 public class AbstractResourceAccessorTest extends TestCase {
 
     public void testList() {
+        try {
+            Class<?> aClass = Resources.classForName("[Ljava.lang.Byte;");
+            System.out.println(aClass.getName());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void testGetResources() throws IOException {

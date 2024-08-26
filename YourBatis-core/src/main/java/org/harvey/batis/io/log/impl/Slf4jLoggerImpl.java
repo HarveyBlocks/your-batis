@@ -2,9 +2,10 @@ package org.harvey.batis.io.log.impl;
 
 import org.harvey.batis.io.log.Log;
 import org.slf4j.Logger;
+import org.slf4j.event.Level;
+import org.slf4j.spi.LoggingEventBuilder;
 
 /**
- *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
  * @date 2024-08-01 14:31

@@ -1,10 +1,10 @@
 package org.harvey.batis.transaction.jdbc;
 
-import org.harvey.batis.enums.TransactionIsolationLevel;
 import org.harvey.batis.exception.transaction.TransactionException;
 import org.harvey.batis.io.log.Log;
 import org.harvey.batis.io.log.LogFactory;
 import org.harvey.batis.transaction.Transaction;
+import org.harvey.batis.util.enums.TransactionIsolationLevel;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -155,5 +155,13 @@ public class JdbcTransaction implements Transaction {
             LOG.debugIfEnable("Error resetting autocommit to true "
                     + "before closing the connection.  Cause: " + e);
         }
+    }
+
+    /**
+     * @return 总是返回null
+     */
+    @Override
+    public Integer getTimeout() {
+        return null;
     }
 }

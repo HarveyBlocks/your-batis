@@ -1,7 +1,10 @@
 package org.harvey.batis.io;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BiFunction;
 
 /**
@@ -40,7 +43,7 @@ public class ClassLoaderWrapper {
      * @see #getResourceAs(String, ClassLoader[], BiFunction)
      */
     public URL getResourceAsUrl(String resource) {
-        return getResourceAsUrl0(resource, null);
+        return getResourceAsUrl(resource, null);
     }
 
     /**
@@ -68,29 +71,63 @@ public class ClassLoaderWrapper {
      * };}</pre>
      * 其返回值是一个可迭代的URL集合, 形如:
      * <pre>{@code file:/D:/IT_study/source/JDK/YourBatis/YourBatis-core/target/test-classes/org/harvey/batis/util/StrictMapTest.yml}</pre>
+     *
      * @see #getResourceAs(String, ClassLoader[], BiFunction)
      * @see ClassLoader#getResources(String)
      */
-    private static URL getResourceAsUrl0(String resource, ClassLoader[] classLoader) {
-        return ClassLoaderWrapper.getResourceAs(resource, classLoader, ClassLoader::getResource);
+    private static URL getResourceAsUrl0(String resource, ClassLoader[] classLoaders) {
+        return ClassLoaderWrapper.getResourceAs(resource, classLoaders, ClassLoader::getResource);
+    }
+
+
+    /**
+     * @see #getResourceAs(String, ClassLoader[], BiFunction)
+     */
+    public List<URL> getResourceAsUrls(String resource) {
+        return getResourceAsUrls(resource, null);
+    }
+
+    /**
+     * @see #getClassLoaders(ClassLoader)
+     * @see #getResourceAs(String, ClassLoader[], BiFunction)
+     */
+    public List<URL> getResourceAsUrls(String resource, ClassLoader loader) {
+        return getResourceAsUrls0(resource, getClassLoaders(loader));
+    }
+
+    /**
+     * @see #getResourceAs(String, ClassLoader[], BiFunction)
+     */
+    private static List<URL> getResourceAsUrls0(String resource, ClassLoader[] classLoaders) {
+        return Collections.list(ClassLoaderWrapper.getResourceAs(
+                resource, classLoaders, (c, s) -> {
+                    try {
+                        return c.getResources(s);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }));
     }
 
     /**
      * 依据resourceSupplier获取不同类型的resource
      *
+     * @param resource 不带前导"/"的相对路径(是路径不是包!)<br>
+     *                 (一般情况下, 不是也没关系, 就是相对路径的情况不会去尝试罢了)<br>
      * @return the resource or null
      */
-    private static <R> R getResourceAs(String resource, ClassLoader[] classLoader, BiFunction<ClassLoader, String, R> resourceSupplier) {
+    private static <R> R getResourceAs(String resource, ClassLoader[] classLoaders, BiFunction<ClassLoader, String, R> resourceSupplier) {
         R returnValue = null;
-        if (classLoader == null) {
-            return returnValue;
+        if (classLoaders == null) {
+            return null;
         }
-        for (ClassLoader cl : classLoader) {
+        for (ClassLoader cl : classLoaders) {
             if (cl == null) {
                 continue;
             }
             returnValue = resourceSupplier.apply(cl, resource);
-            if (null == returnValue) {
+            if (returnValue == null) {
+                // 可能是因为resource是相对路径而找不到资源, 换用绝对路径
                 returnValue = resourceSupplier.apply(cl, "/" + resource);
             }
             if (returnValue != null) {

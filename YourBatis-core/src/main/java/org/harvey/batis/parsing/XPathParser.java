@@ -4,11 +4,13 @@ import lombok.Setter;
 import org.harvey.batis.exception.builder.BuilderException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 
 import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -18,6 +20,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -45,6 +49,7 @@ public class XPathParser {
     private EntityResolver entityResolver;
     /**
      * 变量, 会被存入Xml类型的包装类
+     *
      * @see XNode#XNode(XPathParser, Node, Properties)
      */
     @Setter
@@ -64,35 +69,37 @@ public class XPathParser {
 
     /**
      * @param reader 用于转变为InputSource
-     * @see #XPathParser(InputSource, boolean, Properties, EntityResolver)
+     * @see #XPathParser(InputSource, boolean, Properties, EntityResolver,NamespaceContext)
      */
-    public XPathParser(Reader reader, boolean validation, Properties variables, EntityResolver entityResolver) {
-        this(new InputSource(reader), validation, variables, entityResolver);
+    public XPathParser(Reader reader, boolean validation, Properties variables,
+                       EntityResolver entityResolver,NamespaceContext nsContext) {
+        this(new InputSource(reader), validation, variables, entityResolver,nsContext);
     }
 
     /**
      * @param inputStream 用于转变为InputSource
-     * @see #XPathParser(InputSource, boolean, Properties, EntityResolver)
+     * @see #XPathParser(InputSource, boolean, Properties, EntityResolver, NamespaceContext)
      */
-    public XPathParser(InputStream inputStream, boolean validation, Properties variables, EntityResolver entityResolver) {
-        this(new InputSource(inputStream), validation, variables, entityResolver);
+    public XPathParser(InputStream inputStream, boolean validation, Properties variables,
+                       EntityResolver entityResolver, NamespaceContext nsContext) {
+        this(new InputSource(inputStream), validation, variables, entityResolver, nsContext);
     }
 
     /**
-     * @see #commonConstructor(boolean, Properties, EntityResolver)
+     * @see #commonConstructor(boolean, Properties, EntityResolver, NamespaceContext)
      * @see #createDocument(InputSource)
      */
-    public XPathParser(InputSource source, boolean validation, Properties variables, EntityResolver entityResolver) {
-        this.commonConstructor(validation, variables, entityResolver);
+    public XPathParser(InputSource source, boolean validation, Properties variables, EntityResolver entityResolver, NamespaceContext nsContext) {
+        this.commonConstructor(validation, variables, entityResolver, nsContext);
         this.document = this.createDocument(source);
     }
 
     /**
      * @param document {@link #document}
-     * @see #commonConstructor(boolean, Properties, EntityResolver)
+     * @see #commonConstructor(boolean, Properties, EntityResolver, NamespaceContext)
      */
     public XPathParser(Document document) {
-        this.commonConstructor(false, null, null);
+        this.commonConstructor(false, null, null, null);
         this.document = document;
     }
 
@@ -102,13 +109,14 @@ public class XPathParser {
      * @param variables      {@link #variables}
      * @param entityResolver {@link #entityResolver}
      */
-    private void commonConstructor(boolean validation, Properties variables, EntityResolver entityResolver) {
+    private void commonConstructor(boolean validation, Properties variables,
+                                   EntityResolver entityResolver, NamespaceContext nsContext) {
         this.validation = validation;
         this.entityResolver = entityResolver;
         this.variables = variables;
         XPathFactory factory = XPathFactory.newInstance();
         this.xPath = factory.newXPath();
-        this.xPath.setNamespaceContext(ConfigXmlConstants.CONFIG_NAMESPACE_CONTEXT);
+        this.xPath.setNamespaceContext(nsContext);
     }
 
     /**
@@ -196,6 +204,7 @@ public class XPathParser {
         }
         return new XNode(this, node, variables);
     }
+
     /**
      * evaluate, 解析字符串表达式的意思
      *
@@ -211,4 +220,12 @@ public class XPathParser {
     }
 
 
+    public List<XNode> evaluateNodes(Node root, String expression) {
+        List<XNode> xNodes = new ArrayList<>();
+        NodeList nodes = (NodeList) this.evaluate(expression, root, XPathConstants.NODESET);
+        for (int i = 0; i < nodes.getLength(); i++) {
+            xNodes.add(new XNode(this, nodes.item(i), variables));
+        }
+        return xNodes;
+    }
 }

@@ -97,7 +97,7 @@ public class StrictMap<V> extends HashMap<String, V> {
      * @return value
      */
     private static String getSimpleName(String key) {
-        final String[] keyParts = key.split("\\.");
+        final String[] keyParts = ArrayUtil.split(key, '.');
         return keyParts[keyParts.length - 1];
     }
 

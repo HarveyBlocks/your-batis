@@ -1,6 +1,7 @@
 package org.harvey.batis.binding;
 
 import lombok.Getter;
+import org.harvey.batis.exception.UnfinishedFunctionException;
 import org.harvey.batis.session.SqlSession;
 
 import java.lang.reflect.InvocationHandler;
@@ -10,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * TODO
+ * Mapper的代理工厂, 连接了Mapper接口和Mapper代理实现
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
@@ -37,7 +38,7 @@ public class MapperProxyFactory<T> {
     }
 
     /**
-     * 创建新的{@link MapperProxy}包装SqlSession,mapperInterface,methodCache
+     * 创建新的{@link MapperProxy}包装SqlSession,mapperInterface,methodCache, 实现mapperInterface
      *
      * @see #newInstance(MapperProxy)
      */

@@ -1,11 +1,18 @@
 package org.harvey.batis.session;
 
 import org.harvey.batis.config.Configuration;
-import org.harvey.batis.enums.ExecutorType;
-import org.harvey.batis.enums.TransactionIsolationLevel;
+import org.harvey.batis.exception.ExceptionFactory;
 import org.harvey.batis.exception.UnfinishedFunctionException;
+import org.harvey.batis.executor.Executor;
+import org.harvey.batis.mapping.Environment;
+import org.harvey.batis.transaction.Transaction;
+import org.harvey.batis.transaction.TransactionFactory;
+import org.harvey.batis.util.ErrorContext;
+import org.harvey.batis.util.enums.ExecutorType;
+import org.harvey.batis.util.enums.TransactionIsolationLevel;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * TODO
@@ -71,7 +78,19 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
      * TODO
      */
     private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
-        throw new UnfinishedFunctionException(execType, level, autoCommit);
+        Transaction tx = null;
+        try {
+            final Environment environment = configuration.getEnvironment();
+            final TransactionFactory transactionFactory = this.getTransactionFactoryFromEnvironment(environment);
+            tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
+            final Executor executor = configuration.newExecutor(tx, execType);
+            return new DefaultSqlSession(configuration, executor, autoCommit);
+        } catch (Exception e) {
+            this.closeTransaction(tx); // 可能获取了一个连接后发生异常，所以close
+            throw ExceptionFactory.wrapException("Error opening session.  Cause: " + e, e);
+        } finally {
+            ErrorContext.instance().reset();
+        }
     }
 
     /**
@@ -79,5 +98,23 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
      */
     private SqlSession openSessionFromConnection(ExecutorType execType, Connection connection) {
         throw new UnfinishedFunctionException(execType, connection);
+    }
+
+    private TransactionFactory getTransactionFactoryFromEnvironment(Environment environment) {
+        if (environment == null || environment.getTransactionFactory() == null) {
+            throw new UnfinishedFunctionException();
+            // return new ManagedTransactionFactory();
+        }
+        return environment.getTransactionFactory();
+    }
+
+    private void closeTransaction(Transaction tx) {
+        if (tx != null) {
+            try {
+                tx.close();
+            } catch (SQLException ignore) {
+                // 故意忽略。选则上一个错误
+            }
+        }
     }
 }

@@ -1,7 +1,7 @@
 package org.harvey.batis.datasource;
 
 import lombok.Data;
-import org.harvey.batis.enums.TransactionIsolationLevel;
+import org.harvey.batis.util.enums.TransactionIsolationLevel;
 import org.harvey.batis.io.Resources;
 
 import javax.sql.DataSource;

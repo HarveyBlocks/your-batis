@@ -3,12 +3,9 @@ package org.harvey.batis.io;
 import org.harvey.batis.io.log.Log;
 import org.harvey.batis.io.log.LogFactory;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -67,7 +64,12 @@ public class ResourceAccessorFactory{
                 } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
                          InvocationTargetException e) {
                     LOG.error("Failed to instantiate " + implementation, e);
-                    return null; // TODO Why return null? 不应该往继续尝试下一个实现类吗?
+                    return null;
+                    // Why return null? 不应该往继续尝试下一个实现类吗?
+                    // 因为实现类没有给出无参构造, 才会被catch
+                    // 大抵是为了防止成功运行而让用户没有发觉自己的实现有问题,
+                    // 从而造成潜在的Bug
+                    // 才这样设计的吧?
                 }
                 // 继续尝试下一个
             }

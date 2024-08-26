@@ -141,6 +141,13 @@ public class MetaClass {
     }
 
     /**
+     * @see Reflector#hasDefaultConstructor()
+     */
+    public boolean hasDefaultConstructor() {
+        return reflector.hasDefaultConstructor();
+    }
+
+    /**
      * school.student[12].name, 利用递归直接获取name的类型
      *
      * @return 返回配置的最终底层依赖的类对象
@@ -263,6 +270,7 @@ public class MetaClass {
     public boolean hasGetter(String name) {
         return this.hasMethod(name, reflector::hasGetter, MetaClass::hasGetter);
     }
+
 
     @FunctionalInterface
     private interface ReflectorHasMethodFunction extends Function<String, Boolean> {

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+
+<mapper xmlns="http://batis.harvey.org/schema/config"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://batis.harvey.org/schema/config
+                            https://batis.harvey.org/schema/config/yourbatis-mapper.xsd"
+        target="org.harvey.batis.demo.mapper.GoodMapper"><!--名字写代理接口-->
+
+
+    <result-map id="GoodMap" java-entity-type="org.harvey.batis.demo.entity.Good">
+        <result table-column="id" java-field="id"/>
+        <result table-column="name" java-field="name"/>
+        <result table-column="price" java-field="price"/>
+        <result table-column="stock" java-field="stock"/>
+    </result-map>
+
+
+    <insert method-name="addGood">
+        insert into good(name,price,stock)
+        values(#{name},#{price},#{stock});
+    </insert>
+    <insert method-name="addGood2">
+        insert into good(name,price,stock)
+        values(#{name},#{price},#{stock});
+    </insert>
+
+
+    <delete method-name="delById">
+        delete from good where
+        id = #{id}
+    </delete>
+
+    <delete method-name="delByIds">
+        delete from good where
+        id in
+        <foreach
+                collection="array"
+                item="id"
+                separator=","
+                open="("
+                close=")">
+            #{id}
+        </foreach>
+        ;
+        <!--删除了个寂寞也是删,离谱-->
+    </delete>
+
+    <update method-name="update">
+        update good
+        <set>
+            <if match="price!=null">
+                price = #{price},
+            </if>
+            <!--↓这里用and而不是&&-->
+            <if match="name!=null and name!= '' ">
+                name = #{name},
+            </if>
+            <if match="stock!=null">
+                stock = #{stock},
+            </if>
+        </set>
+        where
+        id=#{id}
+        ;
+        <!--如果good不写id,id默认为0,会删除id = 0 的 商品 不符合-->
+
+    </update>
+
+    <!--id是这一句命令的唯一标识,不能重复-->
+    <select method-name="selectAll" result-map="GoodMap"><!--起了别名之后就方便了-->
+        select id,name,price,stock from good ;
+    </select>
+
+    <select method-name="selectById" result-map="GoodMap">
+        select id,name,price,stock
+        from good where id like concat('%',#{id},'%');
+    </select>
+
+    <select method-name="selectByIds" result-map="GoodMap">
+        select id,name,price,stock
+        from good where
+        <foreach
+                collection="array"
+                item="id"
+                separator=" or ">
+            id like concat('%',#{id},'%')
+        </foreach>
+        ;
+    </select>
+
+    <select method-name="selectByName" result-map="GoodMap">
+        select id,name,price,stock
+        from good where name like concat('%',#{name},'%');
+    </select>
+
+    <select method-name="selectByNames" result-map="GoodMap">
+        select id,name,price,stock
+        from good where
+        <foreach
+                collection="array"
+                item="name"
+                separator=" or ">
+            name like concat('%',#{name},'%')
+        </foreach>
+        ;
+    </select>
+
+    <select method-name="selectByPrices" result-map="GoodMap">
+        select id,name,price,stock
+        from good
+        <where>
+            <![CDATA[
+                price<=#{high} and price >= #{low}
+            ]]>
+        </where>
+    </select>
+
+    <select method-name="selectByPrice" result-map="GoodMap">
+        select id,name,price,stock
+        from good
+        <where>
+            price = #{price}
+        </where>
+    </select>
+
+    <select method-name="selectByStocks" result-map="GoodMap">
+        select id,name,price,stock
+        from good where <![CDATA[
+            stock >= #{low} and stock <= #{high}
+        ]]>;
+    </select>
+
+    <select method-name="selectByStock" result-map="GoodMap">
+        select id,name,price,stock
+        from good where stock = #{stock}
+    </select>
+
+    <select method-name="selectByCondition" result-map="GoodMap">
+
+        select id,name,price,stock
+        from good
+        <where>
+            <if match="price!=null">
+                price = #{price}
+            </if>
+            <!--↓这里用and而不是&&-->
+            <if match="name!=null and name!= '' ">
+                or name like #{name}
+            </if>
+            <!--
+              这里的语句都是接字符串
+             -->
+            <if match="stock!=null">
+                or stock = #{stoke}
+            </if>
+        </where>
+
+    </select>
+
+    <!--已弃用-->
+    <select method-name="orderByAsc" result-map="GoodMap">
+        select id,name,price,stock
+        from good order by
+        <choose>
+            <when match="table-column=='STOCK'">
+                stock
+            </when>
+            <when match="table-column=='PRICE'">
+                price
+            </when>
+            <when match="table-column=='NAME'">
+                name
+            </when>
+            <otherwise>
+                id
+            </otherwise>
+        </choose>
+        asc
+        ;
+    </select>
+
+    <!--已弃用-->
+    <select method-name="orderByDesc" result-map="GoodMap">
+        select id,name,price,stock
+        from good order by
+        <choose>
+            <when match="table-column=='STOCK'">
+                stock
+            </when>
+            <when match="table-column=='PRICE'">
+                price
+            </when>
+            <when match="table-column=='NAME'">
+                name
+            </when>
+            <otherwise>
+                id
+            </otherwise>
+        </choose>
+        desc
+    </select>
+
+    <select method-name="orderBy" result-map="GoodMap">
+        select id,name,price,stock
+        from good order by
+        <foreach collection="rules"
+                 item="rule"
+                 separator=",">
+            ${rule}
+        </foreach>
+    </select>
+
+    <select method-name="dividePage" result-map="GoodMap">
+        select id,name,price,stock
+        from good limit #{start},#{len};
+    </select>
+
+
+    <select method-name="orderThenPage" result-map="GoodMap">
+        select id,name,price,stock
+        from good order by
+        <choose>
+            <when match="table-column=='STOCK'">
+                stock
+            </when>
+            <when match="table-column=='PRICE'">
+                price
+            </when>
+            <when match="table-column=='NAME'">
+                name
+            </when>
+            <otherwise>
+                id
+            </otherwise>
+        </choose>
+        <choose>
+            <when match="isDesc=='true'">
+                desc
+            </when>
+            <otherwise>
+                asc
+            </otherwise>
+        </choose>
+        limit #{start},#{len};
+    </select>
+
+</mapper>

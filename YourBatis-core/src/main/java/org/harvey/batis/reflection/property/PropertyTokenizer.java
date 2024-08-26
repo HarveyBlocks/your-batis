@@ -37,11 +37,12 @@ public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
         }
         // 检查配置是否是数组, 形式如students[12], 也有可能是student[李四]
         indexedName = name; // 就是students[12]
-        delimiter = name.indexOf('[');
-        if (delimiter >= 0) {
+        // parentheses 括号
+        int parentheses = name.indexOf('[');
+        if (parentheses >= 0) {
             // 如果配置是数组, 那么解析这个数组
-            index = name.substring(delimiter + 1, name.length() - 1); // 中括号里的部分12
-            name = name.substring(0, delimiter); // 参数名字变students[12]为students
+            index = name.substring(parentheses + 1, name.length() - 1); // 中括号里的部分12
+            name = name.substring(0, parentheses); // 参数名字变students[12]为students
         }
     }
 

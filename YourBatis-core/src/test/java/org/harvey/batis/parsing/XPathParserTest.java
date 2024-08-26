@@ -31,7 +31,7 @@ public class XPathParserTest extends TestCase {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        XPathParser xPathParser = new XPathParser(reader, true, null, new XMLMapperEntityResolver());
+        XPathParser xPathParser = new XPathParser(reader, true, null, new XMLMapperEntityResolver(), null);
         String expression = new XPathBuilder()
                 .setNamespace(ConfigXmlConstants.NAMESPACE_PREFIX)
                 .findGradually(ConfigXmlConstants.ROOT_ELEMENT)

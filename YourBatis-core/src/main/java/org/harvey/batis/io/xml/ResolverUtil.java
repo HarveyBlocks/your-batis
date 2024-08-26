@@ -2,7 +2,6 @@ package org.harvey.batis.io.xml;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.harvey.batis.io.ResourceAccessor;
 import org.harvey.batis.io.ResourceAccessorFactory;
 import org.harvey.batis.io.log.Log;
 import org.harvey.batis.io.log.LogFactory;
@@ -79,15 +78,16 @@ public class ResolverUtil<T> {
     }
 
     /**
-     * TODO
-     * Scans for classes starting at the package provided and descending into subpackages.
-     * Each class is offered up to the Test as it is discovered, and if the Test returns
-     * true the class is retained.  Accumulated classes can be fetched by calling
-     * {@link #getMatches()}.
-     *
-     * @param matcher     an instance of {@link ClassMatcher} that will be used to filter classes
-     * @param packageName the name of the package from which to start scanning for classes, e.g. {@code net.sourceforge.stripes}
-     * @return the resolver util
+     * @param matcher     {@link ClassMatcher}的实现类, 用来筛选被选中的类
+     * @param packageName 包名<br>
+     *                    <pre>{@code "org.harvey.batis.demo.mapper"}</pre>
+     *                    被转换为路径后扫描路径下的资源(包括一般文件和字节码文件)<br>
+     *                    本方法中, 被扫描到的资源, 如果是字节码文件, <br>
+     *                    且被{@link ResolverUtil.ClassMatcher#matches}捕获<br>
+     *                    将被保存在{@link #matches}<br>
+     *                    通过{@link #getMatches()}来获取{@link #matches}
+     * @return 本对象
+     * @see #addIfMatching(ClassMatcher, String)
      */
     public ResolverUtil<T> find(ClassMatcher matcher, String packageName) {
         String path = this.package2Path(packageName);
@@ -108,7 +108,7 @@ public class ResolverUtil<T> {
 
     /**
      * 将 Java 包名称转换为文件路径(所有{@code .}换成{@code /}), <br>
-     * 方便调用{@link ClassLoader#getResources(String)}, TODO 获取资源
+     * 方便调用{@link ClassLoader#getResources(String)}, 获取资源
      *
      * @param packageName Java包名称
      * @return the package 文件路径
@@ -118,20 +118,21 @@ public class ResolverUtil<T> {
     }
 
     /**
-     * TODO
-     * <p>
-     * Add the class designated by the fully qualified class name provided to the set of
-     * resolved classes if and only if it is approved by the Test supplied.
+     * 依据全限定名获取Class字节码类, 然后看这个类能否被matcher获取, 能就存入{@link #matches}
      *
-     * @param matcher the test used to determine if the class matches
-     * @param fqn     the fully qualified name of a class
+     * @param matcher   符合标准的类将会被获取, 存入{@link #matches}
+     * @param classpath 类的全限定名, 形如:
+     *                  <pre>{@code "org/harvey/batis/demo/mapper/EmployeeMapper.class"}</pre>
      */
-    protected void addIfMatching(ClassMatcher matcher, String fqn) {
-        String classFullname = fqn.substring(0, fqn.indexOf('.')) // 此.乃.class之.
+    protected void addIfMatching(ClassMatcher matcher, String classpath) {
+        String classFullname = classpath.substring(0, classpath.lastIndexOf('.'))
+                // 此`.`乃`.class`之`.`
+                // 因为前面的部分已经由包的`.`转换为路径的`/`了
+                // 现在再转换回来
                 .replace('/', '.');
         // 相当于获取了全类名
         try {
-            ClassLoader loader = getClassLoader();
+            ClassLoader loader = this.getClassLoader();
             LOG.debugIfEnable("Checking to see if class " + classFullname +
                     " matches criteria [" + matcher + "]");
             // classFullname实例化出来了type
@@ -143,7 +144,7 @@ public class ResolverUtil<T> {
                 matches.add((Class<T>) type);
             }
         } catch (Throwable t) {
-            LOG.warn("Could not examine class '" + fqn + "'" + " due to a "
+            LOG.warn("Could not examine class '" + classpath + "'" + " due to a "
                     + t.getClass().getName() + " with message: " + t.getMessage());
         }
     }
@@ -164,7 +165,7 @@ public class ResolverUtil<T> {
     /**
      * {@inheritDoc}
      *
-     * @see #matches
+     * @see ResolverUtil.IsSonMatcher#matches
      */
     public static class IsSonMatcher implements ClassMatcher {
         /**
@@ -183,7 +184,9 @@ public class ResolverUtil<T> {
          * {@inheritDoc}
          *
          * @param type 检查本参数是否是{@link #parent}的子类/子实现类
-         * @return 如果是子类/子实现类, 返回true; 如果是本类, 返回true; 否则, 返回false
+         * @return 如果是子类/子实现类, 返回true; <br>
+         * 如果是本类, 返回true; <br>
+         * 否则, 返回false
          */
         @Override
         public boolean matches(Class<?> type) {

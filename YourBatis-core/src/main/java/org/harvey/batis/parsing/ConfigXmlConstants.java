@@ -11,15 +11,13 @@ import java.util.Iterator;
  * @version 1.0
  * @date 2024-08-05 17:01
  */
-public class ConfigXmlConstants {
-    public static final String TRANSACTION_MANAGER_ELEMENT = "transactionManager";
+public interface ConfigXmlConstants {
+    String XSD_FILENAME = "yourbatis-config.xsd";
+    String TRANSACTION_MANAGER_ELEMENT = "transactionManager";
 
-    private ConfigXmlConstants() {
-    }
-
-    public static final String NAMESPACE_PREFIX = "cfg";
-    public static final String NAMESPACE_URI = "http://batis.harvey.org/schema/config";
-    public static final NamespaceContext CONFIG_NAMESPACE_CONTEXT = new NamespaceContext() {
+    String NAMESPACE_PREFIX = "cfg";
+    String NAMESPACE_URI = "http://batis.harvey.org/schema/config";
+    NamespaceContext CONFIG_NAMESPACE_CONTEXT = new NamespaceContext() {
         public static final String CONFIG = NAMESPACE_URI;
 
         @Override
@@ -40,29 +38,35 @@ public class ConfigXmlConstants {
             return null;
         }
     };
-    public static final String CONFIG_ELEMENT = "config";
-    public static final String DATABASE_ELEMENT = "database";
-    public static final String MAPPERS_ELEMENT = "mappers";
-    public static final String MAPPERS_PATH_ATTRIBUTION = "path";
-    public static final String DRIVER_CLASS_ATTRIBUTION = "driverClassName";
-    public static final String DATABASE_URL_ELEMENT = "url";
+    String CONFIG_ELEMENT = "config";
+    String DATABASE_ELEMENT = "database";
+    String MAPPERS_ELEMENT = "mappers";
+    String MAPPERS_PATH_ATTRIBUTION = "path";
+    String DRIVER_CLASS_ATTRIBUTION = "driverClassName";
+    String DATABASE_URL_ELEMENT = "url";
 
-    public static final String DATABASE_URL_PROTOCOL_ATTRIBUTION = "protocol";
-    public static final String DATABASE_URL_DATABASE_NAME_ELEMENT = "database-name";
-    public static final String DATABASE_URL_HOST_ELEMENT = "host";
-    public static final String DATABASE_URL_PORT_ELEMENT = "port";
-    public static final String DATABASE_URL_SSL_ATTRIBUTION = "useSSL";
-    public static final String DATABASE_URL_CHARSET_ATTRIBUTION = "characterEncoding";
-    public static final String DATABASE_URL_UNICODE_ATTRIBUTION = "useUnicode";
-    public static final String DATABASE_URL_TIMEZONE_ATTRIBUTION = "serverTimezone";
-    public static final String DATABASE_AUTH_ELEMENT = "auth";
-    public static final String DATABASE_AUTH_USER_ELEMENT = "username";
-    public static final String DATABASE_AUTH_PWD_ELEMENT = "password";
-    public static final String DATASOURCE_ELEMENT = "datasource";
-    public static final String DATASOURCE_INITIAL_SIZE_ELEMENT = "initialSize";
-    public static final String DATASOURCE_MAX_ACTIVE_ELEMENT = "maxActive";
-    public static final String DATASOURCE_MAX_WAITING_MILLION_ELEMENT = "maxWaitMillion";
-    public static final String ROOT_ELEMENT = CONFIG_ELEMENT;
+    String DATABASE_URL_PROTOCOL_ATTRIBUTION = "protocol";
+    String DATABASE_URL_DATABASE_NAME_ELEMENT = "database-name";
+    String DATABASE_URL_HOST_ELEMENT = "host";
+    String DATABASE_URL_PORT_ELEMENT = "port";
+    String DATABASE_URL_SSL_ATTRIBUTION = "useSSL";
+    String DATABASE_URL_CHARSET_ATTRIBUTION = "characterEncoding";
+    String DATABASE_URL_UNICODE_ATTRIBUTION = "useUnicode";
+    String DATABASE_URL_TIMEZONE_ATTRIBUTION = "serverTimezone";
+    String DATABASE_AUTH_ELEMENT = "auth";
+    String DATABASE_AUTH_USER_ELEMENT = "username";
+    String DATABASE_AUTH_PWD_ELEMENT = "password";
+    String DATASOURCE_ELEMENT = "datasource";
+    String DATASOURCE_INITIAL_SIZE_ELEMENT = "initialSize";
+    String DATASOURCE_MAX_ACTIVE_ELEMENT = "maxActive";
+    String DATASOURCE_MAX_WAITING_MILLION_ELEMENT = "maxWaitMillion";
+    String ROOT_ELEMENT = CONFIG_ELEMENT;
 
 
+    String PROPERTIES_ELEMENT = "properties";
+    String RESOURCE_ELEMENT = "resource";
+    String FILEPATH_ATTRIBUTION = "filepath";
+    String PROPERTY_ELEMENT = "property";
+    String KEY_ATTRIBUTION = "key";
+    String VALUE_ATTRIBUTION = "value";
 }

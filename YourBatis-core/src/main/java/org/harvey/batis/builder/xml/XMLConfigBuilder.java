@@ -4,7 +4,6 @@ import org.harvey.batis.builder.BaseBuilder;
 import org.harvey.batis.config.Configuration;
 import org.harvey.batis.datasource.DataSourceFactory;
 import org.harvey.batis.datasource.UnpooledDataSourceFactory;
-import org.harvey.batis.exception.UnfinishedFunctionException;
 import org.harvey.batis.exception.builder.BuilderException;
 import org.harvey.batis.io.Resources;
 import org.harvey.batis.mapping.Environment;
@@ -19,6 +18,7 @@ import org.harvey.batis.util.XPathBuilder;
 import org.xml.sax.InputSource;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.List;
@@ -27,6 +27,7 @@ import java.util.Properties;
 /**
  * TODO
  * 解析YourBatis的config.xml文件的Builder<br>
+ * 然后解析各Mapper.class-Mapper.xml, 然后组合<br>
  * 本类一个实例只能解析一次(因为流在解析一次之后回将其关闭)
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
@@ -34,6 +35,17 @@ import java.util.Properties;
  * @date 2024-08-04 17:28
  */
 public class XMLConfigBuilder extends BaseBuilder {
+    private static final XPathBuilder XPATH_BUILDER = new XPathBuilder()
+            .setNamespace(ConfigXmlConstants.NAMESPACE_PREFIX).setAbsolute(false);
+
+    private static String childXpath(String... elementName) {
+        XPATH_BUILDER.clear();
+        for (String name : elementName) {
+            XPATH_BUILDER.findGradually(name);
+        }
+        return XPATH_BUILDER.toString();
+    }
+
     /**
      * 是否已经解析过, 保证{@link #parse()}函数只被调用一遍
      */
@@ -44,7 +56,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     private final XPathParser parser;
     /**
      * TODO
-     * 未知
+     * Datasource的环境, 但是暂未实现
      */
     private final String environment;
     private final ReflectorFactory localReflectorFactory = new DefaultReflectorFactory();
@@ -102,7 +114,8 @@ public class XMLConfigBuilder extends BaseBuilder {
      * @see org.harvey.batis.parsing.PropertyParser#parse(String, Properties)
      */
     public XMLConfigBuilder(InputSource source, String environment, Properties props) {
-        this(new XPathParser(source, true, props, new XMLMapperEntityResolver()), environment, props);
+        this(new XPathParser(source, true, props,
+                new XMLMapperEntityResolver(), ConfigXmlConstants.CONFIG_NAMESPACE_CONTEXT), environment, props);
     }
 
     /**
@@ -143,16 +156,6 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
 
 
-    private static final XPathBuilder XPATH_BUILDER = new XPathBuilder().setNamespace(ConfigXmlConstants.NAMESPACE_PREFIX);
-
-    private static String childXpath(String... elementName) {
-        XPATH_BUILDER.clear();
-        for (String name : elementName) {
-            XPATH_BUILDER.findGradually(name);
-        }
-        return XPATH_BUILDER.toString();
-    }
-
     /**
      * 解析config文件<br>
      * 解析Mapper文件, 将SQL语句于Mapper接口共同实现代理
@@ -164,16 +167,44 @@ public class XMLConfigBuilder extends BaseBuilder {
      */
     private void parseConfiguration(XNode root) {
         try {
-            // issue #117 read properties first
+            this.propertiesElement(root);
             Environment env = this.environmentElement(root);
             configuration.setEnvironment(env);
             for (String mapperPackage : this.mappersElement(root)) {
                 configuration.addMappers(mapperPackage);
             }
-            throw new UnfinishedFunctionException();
         } catch (Exception e) {
             throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
         }
+    }
+
+    private void propertiesElement(XNode root) {
+        List<XNode> children = root.evaluateNode(childXpath(
+                ConfigXmlConstants.PROPERTIES_ELEMENT
+        )).getChildren();
+        Properties defaults = new Properties();
+        children.stream()
+                .filter(node -> ConfigXmlConstants.RESOURCE_ELEMENT.equals(node.getName()))
+                .forEach(node -> {
+                    try {
+                        defaults.putAll(Resources.getResourceAsProperties(
+                                node.getAttributeValue(ConfigXmlConstants.FILEPATH_ATTRIBUTION)
+                        ));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+        children.stream().filter(node -> ConfigXmlConstants.PROPERTY_ELEMENT.equals(node.getName()))
+                .forEach(node -> defaults.setProperty(
+                        node.getAttributeValue(ConfigXmlConstants.KEY_ATTRIBUTION),
+                        node.getAttributeValue(ConfigXmlConstants.VALUE_ATTRIBUTION)
+                ));
+        Properties vars = configuration.getVariables();
+        if (vars != null) {
+            defaults.putAll(vars);
+        }
+        parser.setVariables(defaults);
+        configuration.setVariables(defaults);
     }
 
     /**
@@ -181,7 +212,6 @@ public class XMLConfigBuilder extends BaseBuilder {
      */
     private String[] mappersElement(XNode root) {
         List<XNode> children = root.evaluateNode(childXpath(
-                ConfigXmlConstants.ROOT_ELEMENT,
                 ConfigXmlConstants.MAPPERS_ELEMENT
         )).getChildren();
         return children.stream()
@@ -201,17 +231,14 @@ public class XMLConfigBuilder extends BaseBuilder {
         if (child == null) {
             return null;
         }
-        String transactionXpath = XMLConfigBuilder.childXpath(
-                ConfigXmlConstants.ROOT_ELEMENT, ConfigXmlConstants.TRANSACTION_MANAGER_ELEMENT);
+        String transactionXpath = XMLConfigBuilder.childXpath(ConfigXmlConstants.TRANSACTION_MANAGER_ELEMENT);
 
         XNode transactionNode = child.evaluateNode(transactionXpath);
         TransactionFactory txFactory = this.transactionManagerElement(transactionNode);
 
-        String databaseXpath = XMLConfigBuilder.childXpath(
-                ConfigXmlConstants.ROOT_ELEMENT, ConfigXmlConstants.DATABASE_ELEMENT);
+        String databaseXpath = XMLConfigBuilder.childXpath(ConfigXmlConstants.DATABASE_ELEMENT);
         XNode databaseNode = child.evaluateNode(databaseXpath);
-        String datasourceXpath = XMLConfigBuilder.childXpath(
-                ConfigXmlConstants.ROOT_ELEMENT, ConfigXmlConstants.DATASOURCE_ELEMENT);
+        String datasourceXpath = XMLConfigBuilder.childXpath(ConfigXmlConstants.DATASOURCE_ELEMENT);
         XNode datasourceNode = child.evaluateNode(datasourceXpath);
 
         DataSourceFactory dsFactory = this.dataSourceElement(databaseNode, datasourceNode);
@@ -252,7 +279,7 @@ public class XMLConfigBuilder extends BaseBuilder {
         }
         String driverClass = databaseNode.getAttributeValue(ConfigXmlConstants.DRIVER_CLASS_ATTRIBUTION);
         props.setProperty(ConfigXmlConstants.DRIVER_CLASS_ATTRIBUTION, driverClass);
-        DataSourceFactory factory = (DataSourceFactory) this.resolveClass(type).getDeclaredConstructor().newInstance();
+        DataSourceFactory factory = (DataSourceFactory) BaseBuilder.resolveClass(type).getDeclaredConstructor().newInstance();
         factory.setProperties(props);
         return factory;
     }
@@ -292,19 +319,5 @@ public class XMLConfigBuilder extends BaseBuilder {
         return result;
     }
 
-
-    /**
-     * @see Resources#classForName(String)
-     */
-    protected <T> Class<? extends T> resolveClass(String name) {
-        if (name == null) {
-            return null;
-        }
-        try {
-            return (Class<T>) Resources.classForName(name);
-        } catch (Exception e) {
-            throw new BuilderException("Error resolving class. Cause: " + e, e);
-        }
-    }
 
 }

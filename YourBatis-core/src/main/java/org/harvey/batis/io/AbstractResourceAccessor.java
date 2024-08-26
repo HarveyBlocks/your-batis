@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * TODO
+ * {@inheritDoc}
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
@@ -17,7 +17,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 
     /**
      * {@inheritDoc}
-     *
+     * 从类加载器获取资源
      * @see #getResources(String)
      * @see #list(URL, String)
      */

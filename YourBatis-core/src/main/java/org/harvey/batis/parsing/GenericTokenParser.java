@@ -151,7 +151,8 @@ public class GenericTokenParser {
                 } else {
                     // 有开放令牌也有闭合令牌, 此时content就已经圆满
                     // 就将content交给handler处理, 处理之后加入result
-                    resultBuilder.append(handler.handleToken(contentBuilder.toString()));
+                    String handledContent = handler.handleToken(contentBuilder.toString());
+                    resultBuilder.append(handledContent);
                     // offset指向找到的end的后面
                     offset = end + closeToken.length();
                 }

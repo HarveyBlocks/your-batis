@@ -3,8 +3,6 @@ package org.harvey.batis.exception.builder;
 import org.harvey.batis.exception.PersistenceException;
 
 /**
- * TODO
- *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
  * @date 2024-08-04 15:55

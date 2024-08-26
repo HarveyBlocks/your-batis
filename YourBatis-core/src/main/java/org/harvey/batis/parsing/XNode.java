@@ -1,10 +1,9 @@
 package org.harvey.batis.parsing;
 
 import lombok.Getter;
+import lombok.ToString;
 import org.w3c.dom.CharacterData;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,22 +17,22 @@ import java.util.Properties;
  * @date 2024-08-05 16:14
  * @see Node
  */
+@Getter
+@ToString
 public class XNode {
     /**
      * 被封装的节点
      */
     private final Node node;
-    @Getter
     private final String name;
     private final String body;
-    @Getter
     private final Properties attributes;
     /**
      * @see PropertyParser#parse(String, Properties)
      */
     private final Properties variables;
     /**
-     * TODO 为什么一个节点连解析器都需要啊?
+     * @see #evaluateNode(String)
      */
     private final XPathParser xpathParser;
 
@@ -88,7 +87,23 @@ public class XNode {
             // 不断尝试从child中获取data
             data = this.getBodyData(child);
             // 直到获取到了data
-            // 啊?一个Child的Data就够了?
+            // 🤔: 啊?一个Child的Data就够了?
+            // 答: 对于mix=true的node
+            //      <select method-name="selectTest" result-map="EmployeeResultMap">
+            //           First Son ${key}
+            //          <trim>trim1</trim>
+            //      </select>
+            //      其儿子其实是:
+            //      1. <>First Son ${key} Bitch</>
+            //      2. <trim>trim1</trim>
+            //      所以获取First Son ${key}的部分
+            // 但是很奇怪啊
+            // 因为只有第一组被data = PropertyParser.parse(data, variables);了
+            // 那后面的几组可不是被的了, 使用起来就会很奇怪
+            // 当然, 如果是mix=true的情况, 我认为应该总是会child.forEach 遍历所有child,
+            // 而不会让单独的第一个节点的Body作为唯一评判的标准的
+            // 既然如此, 何不设置body=null, 减少歧义, 为何还要看第一个的?
+            // 依然想不通
         }
         return data;
     }
@@ -109,10 +124,12 @@ public class XNode {
         String data = ((CharacterData) child).getData();
         // 将文本的引用内容替换成实际内容
         // 引用内容和实际内容的映射存放在variables
-        data = PropertyParser.parse(data, variables);
-        return data;
+        return PropertyParser.parse(data, variables);
     }
 
+    /**
+     * 往本类所对应的节点之下进行解析
+     */
     public XNode evaluateNode(String expression) {
         return xpathParser.evaluateNode(node, expression);
     }
@@ -161,5 +178,64 @@ public class XNode {
             }
         }
         return children;
+    }
+
+    public List<XNode> evaluateNodes(String expression) {
+        return xpathParser.evaluateNodes(node, expression);
+    }
+
+
+    /**
+     * @return null if parent not instanceof Element
+     */
+    public XNode getParent() {
+        Node parent = node.getParentNode();
+        if (!(parent instanceof Element)) {
+            return null;
+        } else {
+            return new XNode(xpathParser, parent, variables);
+        }
+    }
+
+
+    /**
+     * 假设, 当前解析的标签(this) 是{@code <result/>}, 然后目标的XML是这样的:
+     * <pre>{@code
+     *         <mapper id="com.harvey.mapper.UserMapper">
+     *             <resultMap id="com.harvey.entity.User$Map">
+     *                 <result key="A" value="a"/>
+     *             </resultMap>
+     *         </mapper>
+     * }</pre>
+     * 当然实际的XML不是这样的
+     *
+     * @return <pre>{@code
+     *  "mapper[com_harvey_mapper_UserMapper]_userMapper[com_harvey_entity_User$Map]_result"
+     * }</pre>
+     */
+    public String getValueBasedIdentifier(String idName) {
+        StringBuilder builder = new StringBuilder();
+        XNode current = this;
+        // 解析方法: 从子向父解析, 往字符串开头插入
+        // 因为儿子找爹容易, 爹找儿子难
+        while (current != null) {
+            if (current != this) {
+                builder.insert(0, "_");
+            }
+            String value = current.getAttributeValue(idName);
+            if (value != null) {
+                value = value.replace('.', '_');
+                builder.insert(0, "]");
+                builder.insert(0, value);
+                builder.insert(0, "[");
+            }
+            builder.insert(0, current.getName());
+            current = current.getParent();
+        }
+        return builder.toString();
+    }
+
+    public XNode newOne(Node item) {
+        return new XNode(xpathParser, item, variables);
     }
 }

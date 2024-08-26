@@ -3,9 +3,7 @@ package org.harvey.batis;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 狗娘养的
