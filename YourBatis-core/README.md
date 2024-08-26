@@ -1,8 +1,8 @@
 # YourBatis
 
-本项目中有大量TODO, 未完成的部分会及时抛出UnfinishFunctionException异常, 方便检查
+本项目中有大量TODO, 未完成的部分会及时抛出UnfinishedFunctionException异常, 方便检查
 
-##项目结构
+## 项目结构
 
 ```
 D:\IT_STUDY\SOURCE\JDK\YOURBATIS\YOURBATIS-CORE\SRC\MAIN
@@ -405,7 +405,7 @@ school.students[12].score[math].level
 
 ### IO
 
-#### Resuources
+#### Resources
 
 帮助读写文件, 解析字节码
 
@@ -575,7 +575,7 @@ GenericTokenParser解析一段文本, 如果文本中出现被特定字符(例�
 
 字符常量, 对应XML文件中的元素名和属性名
 
-#### confix.xsd/mapper.xsd
+#### config.xsd/mapper.xsd
 
 xml限制文件
 
@@ -589,7 +589,7 @@ xml限制文件
 
 ### Config
 
-Configuration, 注册中心? 一个confix.xml文件对应一个Config类
+Configuration, 注册中心? 一个config.xml文件对应一个Config类
 
 有各种配置, 属性和各种Register, 同时也有很多工具类的方法的中转
 
@@ -597,11 +597,11 @@ Configuration, 注册中心? 一个confix.xml文件对应一个Config类
 
 里面的配置都是写死的, 一开始本来打算取缔掉这些涉及配置的字段的,这样可以让本框架的使用者不具备配置这些字段权限的(因为啥都可以配置工作量很大), 但为了可读性, 还是保留了这些字段, 导致为这些字段重新具备配置的能力提供了机会
 
-emmm 
+呃
 
 ~~简单来说本来想偷懒, 就要在配置字段上偷工减料, 没想到最后还是写了一堆, 导致工作量反而每减少?~~
 
-### Scriping
+### Scripting
 
 #### xml
 
@@ -635,7 +635,7 @@ MyBatis源码似乎用的是编译器模式
 
 #### SqlSession
 
-统一调用管理Excutor, 
+统一调用管理Executor, 
 
 参数的映射和Statement的准备/预编译
 
@@ -655,7 +655,7 @@ RowBounds字段有offset和limit
 
 池化的话, 活跃的连接用光了, 就获取空闲的连接, 空闲的连接用光了就创建空闲的连接
 
-所有连接都被使用了, 就查看是否存在连接被长期占用, 被长期占用的连接是否还能用, 调整之后返回连接池
+所有连接都被使用了, 就查看是否存在连接被长期占用, 被长期占用的连接,是否还能用, 调整之后返回连接池
 
 ### mapping
 
@@ -802,7 +802,7 @@ SqlSession sqlSession = sqlSessionFactory.openSession()
 完成SQL语句和方法的对应
 
 ```java
-sqlSession.getMapper(BillMapper.class)
+sqlSession.getMapper(BillMapper.class);
 ```
 
 ### 执行代理方法
