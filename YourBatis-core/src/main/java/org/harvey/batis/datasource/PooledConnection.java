@@ -13,7 +13,7 @@ import java.sql.SQLException;
 
 /**
  * 对Connect连接的一个封装
- * 🤔 : 这是不是滴哦{@link Connection}的代理?
+ * 🤔 : 这是不是{@link Connection}的代理?
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
