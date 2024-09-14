@@ -433,11 +433,11 @@ school.students[12].score[math].level
 
 帮助读写文件, 解析字节码
 
-####Log
+#### Log
 
 封装logback包中的一些日志
 
-####ResolveUtil/ResourceAccessor
+#### ResolveUtil/ResourceAccessor
 
 ResourceAccessor及其实现有包扫描, 解析Jar包的功能
 
@@ -449,7 +449,7 @@ ResolveUtil调用ResourceAccessor, 其中ResolveUtil中规定了目标类型应�
 
 ### Annotation
 
-####Param/ParamNameResolver
+#### Param/ParamNameResolver
 
 Param用来注解方法的参数, 其中的值会作为参数名
 
@@ -479,7 +479,7 @@ ParamNameResolver用来解析被Param注解的参数(当然不被注解的将采
 
 仅实现PerpetualCache, 永久缓存, 就是用Map
 
-###Util
+### Util
 
 #### Type
 
@@ -889,5 +889,7 @@ mapper.update(bill);
 我只能理解"他是这么构造代码的", 却很难想出"这样构造代码有什么好处"
 
 我想这是因为我写的代码还不够多的缘故吧? 
+
+还有, MyBatis中会有使用protected 或者 default 来直接给字段读写访问权限, 我觉得封装性不好, 为什么MyBatis认为这是可以接收的?
 
 还有, MyBatis源码的注释也太少了, 看得我好痛苦(不过就算有注释, 也会因为中英文翻译带来的歧义而导致走进死胡同就是了😳)

@@ -2,9 +2,9 @@ package org.harvey.batis.datasource;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.harvey.batis.util.enums.TransactionIsolationLevel;
 import org.harvey.batis.io.log.Log;
 import org.harvey.batis.io.log.LogFactory;
+import org.harvey.batis.util.enums.TransactionIsolationLevel;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 
 /**
  * 被池化的Datasource
+ * 享元
  *
  * @author <a href="mailto:harvey.blocks@outlook.com">Harvey Blocks</a>
  * @version 1.0
@@ -112,7 +113,6 @@ public class PooledDataSource implements DataSource {
     public PooledDataSource(ClassLoader driverClassLoader, String driver, String url, Properties driverProperties) {
         this(new UnpooledDataSource(driverClassLoader, driver, url, driverProperties));
     }
-
 
 
     /**
@@ -448,6 +448,7 @@ public class PooledDataSource implements DataSource {
                     // 池没有可用的空闲连接
                     if (poolState.getActiveConnectionCount() < poolMaximumActiveConnections) {
                         // 活跃的连接数量没有到达上限, 还可以创建新活跃的连接
+                        // 创建一个活跃的线程
                         resultConn = new PooledConnection(dataSource.getConnection(), this);
                         LOG.debugIfEnable("Created connection " + resultConn.getRealHashCode() + ".");
                     } else {
@@ -830,6 +831,7 @@ public class PooledDataSource implements DataSource {
      */
     protected void pushConnection(PooledConnection conn) throws SQLException {
         synchronized (poolState) {
+            // 这个连接可能是从activeConnections中来的, 先从activeConnections中删除
             poolState.activeConnections.remove(conn);
             if (!conn.isValid()) {
                 // 无效的连接, 该连接试图加入到池, 放弃连接。
@@ -860,6 +862,7 @@ public class PooledDataSource implements DataSource {
 
             // 使老的包装无效化
             conn.invalidate();
+            // 作为参数, 防止在本方法调用后该参数在外界的调用依然有效
             LOG.debugIfEnable("Returned connection " + newConn.getRealHashCode() + " to pool.");
             poolState.notifyAll();
         }

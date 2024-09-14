@@ -11,6 +11,8 @@
       <list>
         <option value="$PROJECT_DIR$/YourBatis-core/pom.xml" />
         <option value="$PROJECT_DIR$/demo/pom.xml" />
+        <option value="$PROJECT_DIR$/yourbatis-spring-boot-autoconfigure/pom.xml" />
+        <option value="$PROJECT_DIR$/yourbatis-spring-boot-starter/pom.xml" />
       </list>
     </option>
   </component>
